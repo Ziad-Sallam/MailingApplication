@@ -7,6 +7,7 @@ public class MailBuilder {
     private String sender;
     private ArrayList<String> recievers;
     private String body;
+    private ArrayList<Attachment> attachments;
     private String datasent;
 
     public MailBuilder setsubject (String subject){
@@ -31,6 +32,11 @@ public class MailBuilder {
         return this;
 
     }
+    public MailBuilder setattachment (ArrayList<Attachment> attachments){
+        this.attachments=attachments;
+        return this;
+
+    }
 
     public MailBuilder setdatesent(String datasent){
         this.datasent=datasent;
@@ -39,7 +45,7 @@ public class MailBuilder {
     }
 
     public Mail Build(){
-        return new Mail(subject,sender,recievers,body,datasent);
+        return new Mail(subject,sender,recievers,body,attachments,datasent);
     }
 
 

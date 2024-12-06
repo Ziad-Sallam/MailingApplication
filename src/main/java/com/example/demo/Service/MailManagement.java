@@ -1,8 +1,11 @@
-package com.example.demo.Model;
+package com.example.demo.Service;
 
-import java.lang.reflect.Array;
+import com.example.demo.Model.Mail;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 
+@Service
 public class MailManagement {
 
     private static MailManagement mailManagement;

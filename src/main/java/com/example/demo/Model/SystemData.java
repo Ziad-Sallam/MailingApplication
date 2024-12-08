@@ -3,10 +3,11 @@ package com.example.demo.Model;
 import java.util.ArrayList;
 
 public class SystemData {
-    int numberOfMails;
-    int numberOfAttachments;
-    ArrayList<String> users = new ArrayList<>();
+    private int numberOfMails;
+    private int numberOfAttachments;
+    private ArrayList<String> users = new ArrayList<>();
 
+    // Getters and Setters
     public int getNumberOfMails() {
         return numberOfMails;
     }

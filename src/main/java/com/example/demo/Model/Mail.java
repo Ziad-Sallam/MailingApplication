@@ -1,31 +1,29 @@
 package com.example.demo.Model;
 
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
-
+import java.util.Collections;
+import java.util.List;
 
 public class Mail {
-    int id;
-    String subject;
-    String sender;
-    ArrayList<String> recievers;
-    String body;
-    String datasent;
+    private int id;
+    private String subject;
+    private String sender;
+    private List<String> receivers;
+    private String body;
+    private String dateSent;
+    private int priority = 2; // Default priority
 
-    public Mail(String subject, String sender, ArrayList<String> recievers,
-         String body, String datasent,int id){
-        this.subject=subject;
-        this.sender=sender;
-        this.recievers=recievers;
-        this.datasent=datasent;
-        this.body=body;
-        this.id=id;
+    public Mail(String subject, String sender, ArrayList<String> receivers, String body, String dateSent, int id, int priority) {
+        this.subject = subject;
+        this.sender = sender;
+        this.receivers = new ArrayList<>(receivers);
+        this.body = body;
+        this.dateSent = dateSent;
+        this.id = id;
+        setPriority(priority);
     }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -42,20 +40,20 @@ public class Mail {
         this.subject = subject;
     }
 
-    public ArrayList<String> getRecievers() {
-        return recievers;
-    }
-
-    public void setRecievers(ArrayList<String> recievers) {
-        this.recievers = recievers;
-    }
-
     public String getSender() {
         return sender;
     }
 
     public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public List<String> getReceivers() {
+        return Collections.unmodifiableList(receivers);
+    }
+
+    public void setReceivers(ArrayList<String> receivers) {
+        this.receivers = new ArrayList<>(receivers);
     }
 
     public String getBody() {
@@ -66,14 +64,23 @@ public class Mail {
         this.body = body;
     }
 
-    public String getDatasent() {
-        return datasent;
+    public String getDateSent() {
+        return dateSent;
     }
 
-    public void setDatasent(String datasent) {
-        this.datasent = datasent;
+    public void setDateSent(String dateSent) {
+        this.dateSent = dateSent;
     }
 
-    public Mail(){}
+    public int getPriority() {
+        return priority;
+    }
 
+    public void setPriority(int priority) {
+        if (priority >= 1 && priority <= 5) {
+            this.priority = priority;
+        } else {
+            throw new IllegalArgumentException("Priority must be between 1 and 5");
+        }
+    }
 }

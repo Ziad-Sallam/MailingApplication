@@ -1,52 +1,54 @@
 package com.example.demo.Model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MailBuilder {
     private String subject;
     private String sender;
-    private ArrayList<String> recievers;
+    private ArrayList<String> receivers;
     private String body;
-    private String datasent;
+    private String dateSent;
     private int id;
+    private int priority = 2; // Default priority
 
-    public MailBuilder setID(int id) {
+    public MailBuilder setId(int id) {
         this.id = id;
         return this;
     }
 
-    public MailBuilder setsubject (String subject){
-        this.subject=subject;
-        return this;
-
-    }
-    public MailBuilder setsender (String sender){
-        this.sender=sender;
+    public MailBuilder setSubject(String subject) {
+        this.subject = subject;
         return this;
     }
 
-    public MailBuilder setrecivers (ArrayList<String> recievers){
-        this.recievers=recievers;
+    public MailBuilder setSender(String sender) {
+        this.sender = sender;
         return this;
     }
 
-    public MailBuilder setbody (String body){
-        this.body=subject;
+    public MailBuilder setReceivers(ArrayList<String> receivers) {
+        this.receivers = new ArrayList<>(receivers);
         return this;
     }
 
-    public MailBuilder setdatesent(String datasent){
-        this.datasent=datasent;
+    public MailBuilder setBody(String body) {
+        this.body = body;
         return this;
     }
 
-    public Mail Build(){
-        return new Mail(subject,sender,recievers,body,datasent,id);
+    public MailBuilder setDateSent(String dateSent) {
+        this.dateSent = dateSent;
+        return this;
     }
 
+    public MailBuilder setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
 
-
-
-
-
+    public Mail build() {
+        return new Mail(subject, sender, receivers, body, dateSent, id, priority);
+    }
 }

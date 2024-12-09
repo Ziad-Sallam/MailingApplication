@@ -1,0 +1,49 @@
+textarea{
+  height: 40vh;
+}
+.mail-view,.mail-box{
+  margin: 1vmax;
+  flex: 4;
+  padding: 2vmax;
+  background-color: white;
+  border-radius: 2vmax;
+  border: 1px solid lightgray;
+  height: 100%;
+
+
+}
+.side-bar{
+  display: flex;
+  flex-direction: column;
+  margin: 1vmax;
+  flex: 1;
+}
+
+.mail-body{
+  background: #fff;
+  height: 30vh;
+
+  padding: 2vmax;
+  border-radius: 2vmax;
+  border: #1a1a1a solid 1px;
+}
+
+
+.list-box{
+  margin: 1vmax;
+  flex: 4;
+  padding: 1vmax;
+  background-color: #ffffff;
+  border-radius: 15px;
+
+
+}
+.side-bar-inner{
+  display: flex;
+
+}
+
+.main-container{
+  display: flex;
+  flex-direction: row;
+}

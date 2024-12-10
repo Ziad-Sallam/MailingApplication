@@ -10,8 +10,9 @@ public class Mail {
     private String sender;
     private List<String> receivers;
     private String body;
+
     private String dateSent;
-    private int priority = 2; // Default priority
+    private int priority = 2;
 
     public Mail(String subject, String sender, ArrayList<String> receivers, String body, String dateSent, int id, int priority) {
         this.subject = subject;
@@ -23,7 +24,6 @@ public class Mail {
         setPriority(priority);
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -83,4 +83,9 @@ public class Mail {
             throw new IllegalArgumentException("Priority must be between 1 and 5");
         }
     }
+
+    public Mail() {
+        // Default constructor
+    }
+
 }

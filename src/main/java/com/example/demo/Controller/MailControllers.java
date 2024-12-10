@@ -1,19 +1,36 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Service.MailManagement;
+import com.example.demo.Model.User;
+import com.example.demo.Service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/mails")
+@RequestMapping("/api/users")
 public class MailControllers {
-    private final MailManagement mailManagement;
+    private final MailService mailService;
+
     @Autowired
-    public MailControllers() {
-        this.mailManagement = MailManagement.getInstance();
+    public MailControllers(MailService mailService) {
+        this.mailService = mailService;
     }
 
-    //all api comes from front
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        mailService.createUser(user.getEmail(), user.getPassword(), user.getName());
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/{Mail}")
+    public ResponseEntity<User> getUser(@PathVariable String email) {
+        User user = mailService.getUser(email);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 }

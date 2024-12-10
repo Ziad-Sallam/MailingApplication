@@ -5,14 +5,15 @@ import java.util.List;
 
 public class Folder {
     private String name;
-    private List<Integer> folderMailIds; // Store mail IDs
+    private List<Integer> folderMailIds;
+
 
     public Folder(String name) {
         this.name = name;
         this.folderMailIds = new ArrayList<>();
     }
 
-    public Folder() {
+    public  Folder() {
         this.folderMailIds = new ArrayList<>();
     }
 
@@ -35,4 +36,7 @@ public class Folder {
     public void removeMail(int mailId) {
         folderMailIds.remove((Integer) mailId);
     }
+
+
+
 }

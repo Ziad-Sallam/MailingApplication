@@ -3,15 +3,18 @@ package com.example.demo.Model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class MailBuilder {
     private String subject;
     private String sender;
     private ArrayList<String> receivers;
     private String body;
+
     private String dateSent;
     private int id;
-    private int priority = 2; // Default priority
+    private int priority = 2;
 
     public MailBuilder setId(int id) {
         this.id = id;
@@ -38,13 +41,15 @@ public class MailBuilder {
         return this;
     }
 
-    public MailBuilder setDateSent(String dateSent) {
-        this.dateSent = dateSent;
-        return this;
-    }
 
     public MailBuilder setPriority(int priority) {
         this.priority = priority;
+        return this;
+    }
+    public MailBuilder setDateSent() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        this.dateSent = now.format(formatter);
         return this;
     }
 

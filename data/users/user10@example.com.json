@@ -1,1 +1,1 @@
-{"name":"User One","email":"user10@example.com","password":"password123","userFolders":[{"name":"Inbox","folderMailIds":[]},{"name":"Trash","folderMailIds":[]},{"name":"Sent","folderMailIds":[29,30]}],"sent":[],"received":[]}
+{"name":"User One","email":"user10@example.com","password":"password123","userFolders":[{"name":"Inbox","folderMailIds":[]},{"name":"Trash","folderMailIds":[]},{"name":"Sent","folderMailIds":[29,30,31,32]}],"sent":[],"received":[]}

@@ -1,7 +1,6 @@
 package com.example.demo.Model;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class User {
     private String name;
@@ -10,9 +9,19 @@ public class User {
     private ArrayList<Folder> userFolders = new ArrayList<>();
     private ArrayList<Integer> sent = new ArrayList<>();
     private ArrayList<Integer> received = new ArrayList<>();
+    private ArrayList<Contact> usercontact;
 
     public User() {
+        this.usercontact = new ArrayList<>();
         addDefaultFolders();
+    }
+
+    public ArrayList<Contact> getUsercontact() {
+        return new ArrayList<>(usercontact);
+    }
+
+    public void setUsercontact(ArrayList<Contact> usercontact) {
+        this.usercontact = new ArrayList<>(usercontact);
     }
 
     private void addDefaultFolders() {

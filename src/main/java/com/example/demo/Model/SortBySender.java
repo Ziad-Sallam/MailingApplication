@@ -1,6 +1,6 @@
 package com.example.demo.Model;
 
-import com.example.demo.Service.MailService;
+import com.example.demo.service.MailService;
 
 import java.util.Comparator;
 

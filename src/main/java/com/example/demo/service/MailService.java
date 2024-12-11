@@ -1,4 +1,4 @@
-package com.example.demo.Service;
+package com.example.demo.service;
 
 import com.example.demo.Model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -92,7 +92,7 @@ public class MailService {
         return null;
     }
 
-    public void createEmail(String from, ArrayList<String> to, String subject, String body, int priority) {
+    public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority) {
         MailBuilder builder = new MailBuilder();
         builder.setSender(from);
         builder.setReceivers(to);
@@ -138,6 +138,7 @@ public class MailService {
         } catch (IOException e) {
             System.out.println("Error creating email: " + e.getMessage());
         }
+        return mail;
     }
 
     public void moveToTrash(String email, int mailId) {
@@ -284,20 +285,23 @@ class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
 
-
-        mailService.createUser("user550@example.com", "password123", "User One");
-        mailService.createUser("user551@example.com", "password123", "User One");
-        mailService.createUser("user552@example.com", "password123", "User One");
-        //mailService.createUser("user60@example.com", "password456", "User Two");
+        User user = mailService.getUser("z@Z.com");
+        System.out.println(user);
 
 
-        ArrayList<String> recipients = new ArrayList<>();
-        recipients.add("user550@example.com");
-        recipients.add("user551@example.com");
-
-
-
-      mailService.createEmail("user552@example.com", recipients, "caroline", "hello!", 3);
+//        mailService.createUser("user550@example.com", "password123", "User One");
+//        mailService.createUser("user551@example.com", "password123", "User One");
+//        mailService.createUser("user552@example.com", "password123", "User One");
+//        //mailService.createUser("user60@example.com", "password456", "User Two");
+//
+//
+//        ArrayList<String> recipients = new ArrayList<>();
+//        recipients.add("user550@example.com");
+//        recipients.add("user551@example.com");
+//
+//
+//
+//      mailService.createEmail("user552@example.com", recipients, "caroline", "hello!", 3);
        // mailService.createEmail("user50@example.com", recipients, "shosho", "Don't forget our meeting tomorrow!", 3);
 
       //  mailService.createEmail("user50@example.com", recipients, "mommon", "Don't forget our meeting tomorrow!", 3);

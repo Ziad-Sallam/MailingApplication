@@ -24,6 +24,10 @@ const router  = createBrowserRouter([
             {
                 path: '/:user/:mailID',
                 element: <MailView />,
+            },
+            {
+                path: '/:user/folder/:folderName',
+                element: <ListBox />,
             }
         ]
     },
@@ -31,7 +35,6 @@ const router  = createBrowserRouter([
         path: '/login',
         element: <Login />,
     },
-
     {
         path: '/register',
         element: <Register />,

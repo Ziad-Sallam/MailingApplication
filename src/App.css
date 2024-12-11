@@ -1,9 +1,9 @@
 textarea{
   height: 40vh;
 }
-.mail-view,.mail-box{
+.mail-view,.mail-box,.list-box{
   margin: 1vmax;
-  flex: 4;
+  flex: 8;
   padding: 2vmax;
   background-color: white;
   border-radius: 2vmax;
@@ -28,16 +28,6 @@ textarea{
   border: #1a1a1a solid 1px;
 }
 
-
-.list-box{
-  margin: 1vmax;
-  flex: 4;
-  padding: 1vmax;
-  background-color: #ffffff;
-  border-radius: 15px;
-
-
-}
 .side-bar-inner{
   display: flex;
 

@@ -4,6 +4,7 @@ import { CiTrash } from "react-icons/ci";
 import {useParams} from 'react-router-dom'
 import {useNavigate} from 'react-router-dom'
 
+
 function SideBar(){
     const params = useParams();
     const navigate = useNavigate();
@@ -23,10 +24,7 @@ function SideBar(){
                 <CiTrash style={{fontSize: "1.7rem"}}/>
                 Trash
             </button>
-
-
         </div>
-
 
     )
 }

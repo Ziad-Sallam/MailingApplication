@@ -5,6 +5,7 @@ import react from "../assets/react.svg"
 import './login.css'
 import {useNavigate} from 'react-router-dom'
 import {useState} from "react";
+import axios from "axios";
 
 
 function LogIn() {
@@ -18,32 +19,38 @@ function LogIn() {
         const {id, value} = e.target;
         if (id === 'inputPassword') {
             setPassword(value);
-
         } else if (id === 'inputPasswordConfirm') {
             setPasswordConfirm(value);
         }
         else if (id === 'inputEmail') {
             setEmail(value);
+            console.log(email);
         }
         else if (id === 'inputUsername') {
             setUsername(value);
         }
     }
-    function handleRegister(e) {
+    async function handleRegister(e) {
         e.preventDefault();
         if (passwordConfirm !== password) {
             console.log("different passwords")
         }
         else {
-            console.log("password change")
-            navigate("/")
+            const new_ = {
+                email: email,
+                name: username,
+                password: password,
+            }
+            await axios.post('http://localhost:8080/api/users', new_);
+            console.log(email);
+            navigate('/'+ email + '/inbox');
         }
     }
 
 
     return (
         <>
-            <form className="form-signin" onSubmit={handleRegister}>
+            <form className="form-signin">
                 <img className="mb-4" src={react} alt="" width="72"
                      height="72"/>
                 <h1 className="h3 mb-3 font-weight-normal">Welcome !</h1>
@@ -52,6 +59,7 @@ function LogIn() {
                        id="inputEmail"
                        className="form-control"
                        placeholder="Email address"
+                       onChange={handlePasswordChange}
                        required
                        autoFocus/>
                 <input type="name"
@@ -59,6 +67,7 @@ function LogIn() {
                        className="form-control middle"
                        placeholder="Username"
                        required
+                       onChange={handlePasswordChange}
                        autoFocus/>
 
                 {/*<label htmlFor="inputPassword" className="sr-only">Password</label>*/}
@@ -82,7 +91,10 @@ function LogIn() {
 
                 <button
                     className="btn btn-lg btn-primary btn-block col-12"
-                    type="submit"> Create Account
+                    type="submit"
+                    onClick={handleRegister}
+
+                > Create Account
                 </button>
                 <a href={'/login'}>have an account?</a>
                 <p className="mt-5 mb-3 text-muted">&copy; The programmers</p>

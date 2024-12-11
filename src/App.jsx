@@ -29,9 +29,7 @@ function App() {
         body : "hello world",
         date : "22/1/2024",
         id : 6
-    }
-
-    ]
+    }]
 
 
   return (

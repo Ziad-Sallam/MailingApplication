@@ -11,6 +11,7 @@ function MailBox() {
     const [to, setTo] = useState('');
     const [body, setBody] = useState('');
     const [subject, setSubject] = useState('');
+    const [priority, setPriority] = useState(2);
 
     function handleEntryChange(e) {
         const { id, value } = e.target;
@@ -20,6 +21,8 @@ function MailBox() {
             setSubject(value);
         } else if (id === 'body') {
             setBody(value);
+        } else if(id === 'pri'){
+            setPriority(value);
         }
     }
 
@@ -33,7 +36,7 @@ function MailBox() {
             receivers: to.split(' '),
             subject: subject,
             body: body,
-            priority: 2,
+            priority: priority,
         };
 
         console.log(param.receiver);
@@ -92,6 +95,10 @@ function MailBox() {
                         </td>
                     </tr>
                     <tr>
+                        <td><label htmlFor="priority">Priority: </label></td>
+                        <td><input id= "pri" className="input input-number" type="number" min="0" max="5" onChange={handleEntryChange}/></td>
+                    </tr>
+                    <tr>
                         <td><label htmlFor="attachment">Attachment: </label></td>
                         <td><input className="input input-file" type="file" /></td>
                     </tr>
@@ -99,8 +106,9 @@ function MailBox() {
                 </table>
                 <button
                     className="btn btn-primary btn-lg btn-block position-relative"
-                    style={{ marginLeft: '89%', marginRight: '20px', marginTop: '-20px', marginBottom: '10px' }}
+                    style={{ marginLeft: '87%', marginRight: '20px', marginTop: '-9px', marginBottom: '10px' }}
                     type="submit"
+                    disabled={!to.trim() || !body.trim() || !subject.trim()}
                 >
                     Submit
                 </button>

@@ -92,7 +92,7 @@ public class MailService {
         return null;
     }
 
-    public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority) {
+    public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority, List<Attachment> attachments) {
         MailBuilder builder = new MailBuilder();
         builder.setSender(from);
         builder.setReceivers(to);
@@ -101,25 +101,36 @@ public class MailService {
         builder.setId(systemData.getNumberOfMails());
         builder.setPriority(priority);
         builder.setDateSent();
+
+        // Add attachments
+        if (attachments != null && !attachments.isEmpty()) {
+            builder.addAttachments(attachments);
+        }
+
         Mail mail = builder.build();
 
         ObjectMapper mapper = new ObjectMapper();
         Queue<String> receiverQueue = new LinkedList<>(to);
 
         try {
+            // Create directories and save email as JSON
             createDirectoriesIfNeeded("data/mails/" + systemData.getNumberOfMails() + ".json");
             mapper.writeValue(new File("data/mails/" + systemData.getNumberOfMails() + ".json"), mail);
+
+            // Handle sender
             User sender = getUser(from);
             if (sender != null) {
                 Folder sentFolder = getFolder(sender, "Sent");
                 if (sentFolder == null) {
                     addNewFolder(sender, "Sent");
+                    sentFolder = getFolder(sender, "Sent"); // Ensure it's retrieved after creation
                 }
                 sentFolder.addMail(systemData.getNumberOfMails());
                 sender.getSent().add(systemData.getNumberOfMails());
                 setUser(sender);
             }
 
+            // Handle receivers
             while (!receiverQueue.isEmpty()) {
                 String receiverEmail = receiverQueue.poll();
                 User receiver = getUser(receiverEmail);
@@ -127,12 +138,15 @@ public class MailService {
                     Folder inbox = getFolder(receiver, "Inbox");
                     if (inbox == null) {
                         addNewFolder(receiver, "Inbox");
+                        inbox = getFolder(receiver, "Inbox"); // Ensure it's retrieved after creation
                     }
                     inbox.addMail(systemData.getNumberOfMails());
                     receiver.addReceivedMail(systemData.getNumberOfMails());
                     setUser(receiver);
                 }
             }
+
+            // Update system data and persist changes
             systemData.setNumberOfMails(systemData.getNumberOfMails() + 1);
             writeData();
         } catch (IOException e) {
@@ -217,6 +231,18 @@ public class MailService {
         });
         return mails;
     }
+
+    public List<Mail> getMailsFromFolder(String email,String folder) {
+        User user = getUser(email);
+        if (user == null) {
+            System.out.println("User not found: " + email);
+            return null;
+        }
+        Folder f = getFolder(user, folder);
+        return getMailsFromFolder(f);
+
+    }
+
     public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue) {
         User user1 = getUser(user.getEmail());
         if (user1 != null) {
@@ -285,8 +311,26 @@ class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
 
-        User user = mailService.getUser("z@Z.com");
-        System.out.println(user);
+
+        mailService.createUser("us8989@example.com", "password123", "User One");
+        mailService.createUser("us56565@example.com", "password456", "User Two");
+        mailService.createUser("us23232@example.com", "password456", "User Three");
+
+
+        ArrayList<String> recipients = new ArrayList<>();
+        recipients.add("user10@example.com");
+        recipients.add("user20@example.com");
+
+        byte[] pdfBytes = "document.pdf".getBytes();
+        byte[] imageBytes = "image.jpg".getBytes();
+
+        List<Attachment> attachments = new ArrayList<>();
+        attachments.add(new Attachment("document.pdf", "application/pdf", pdfBytes));
+        attachments.add(new Attachment("image.jpg", "image/jpeg", imageBytes));
+
+
+        mailService.createEmail("user50@example.com", recipients, "caroline", "hello!", 3,attachments);
+
 
 
 //        mailService.createUser("user550@example.com", "password123", "User One");

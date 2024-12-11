@@ -107,4 +107,10 @@ public class User {
     public void setReceived(ArrayList<Integer> received) {
         this.received = new ArrayList<>(received);
     }
+
+    public void addContact(Contact contact){
+        usercontact.add(contact);
+    }
+
+
 }

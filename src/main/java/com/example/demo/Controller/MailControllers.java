@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,10 +51,22 @@ public class MailControllers {
 
     @PostMapping("/send")
     public ResponseEntity<Mail> send(@RequestBody  Mail mail) {
-        Mail m =mailService.createEmail(mail.getSender(), new ArrayList<>(mail.getReceivers()) ,mail.getSubject(),mail.getBody(), mail.getPriority());
+        Mail m =mailService.createEmail(mail.getSender(), new ArrayList<>(mail.getReceivers()) ,mail.getSubject(),mail.getBody(), mail.getPriority(),mail.getAttachments());
         return ResponseEntity.ok(m);
 
     }
 
+    @GetMapping(value = "/getEmails" ,params = {"email", "folder"})
+    public ResponseEntity<List<Mail>> getUserMails(@Param("email") String email,@Param("folder") String folder){
+        List<Mail> l = mailService.getMailsFromFolder(email, folder);
+        return ResponseEntity.ok(l);
+
+    }
+
+    @GetMapping(value = "/getEmail", params = {"id"})
+    public ResponseEntity<Mail> getUserMail(@Param("id") int id){
+        Mail m = mailService.getEmail(id);
+        return ResponseEntity.ok(m);
+    }
 
 }

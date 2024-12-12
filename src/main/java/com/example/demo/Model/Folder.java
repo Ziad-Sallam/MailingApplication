@@ -37,6 +37,4 @@ public class Folder {
         folderMailIds.remove((Integer) mailId);
     }
 
-
-
 }

@@ -15,8 +15,8 @@ public class SortBySender implements SortStrategy, Comparator<Mail> {
     @Override
     public void sort(Folder folder) {
         folder.getFolderMailIds().sort((id1, id2) -> {
-            Mail mail1 = mailService.getEmail(id1);
-            Mail mail2 = mailService.getEmail(id2);
+            Mail mail1 = mailService.getEmail((Integer) id1);
+            Mail mail2 = mailService.getEmail((Integer) id2);
             return mail1.getSender().compareTo(mail2.getSender());
         });
     }

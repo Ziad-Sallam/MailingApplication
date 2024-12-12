@@ -10,10 +10,12 @@ public class User {
     private ArrayList<Integer> sent = new ArrayList<>();
     private ArrayList<Integer> received = new ArrayList<>();
     private ArrayList<Contact> usercontact;
+    private ArrayList<String> draft = new ArrayList<>();
 
     public User() {
         this.usercontact = new ArrayList<>();
         addDefaultFolders();
+        this.draft = new ArrayList<>();
     }
 
     public ArrayList<Contact> getUsercontact() {
@@ -29,6 +31,7 @@ public class User {
             userFolders.add(new Folder("Inbox"));
             userFolders.add(new Folder("Trash"));
             userFolders.add(new Folder("Sent"));
+//            userFolders.add(new Folder("Draft"));
         }
     }
 
@@ -92,6 +95,7 @@ public class User {
         this.password = password;
     }
 
+
     public ArrayList<Integer> getSent() {
         return new ArrayList<>(sent);
     }
@@ -112,5 +116,15 @@ public class User {
         usercontact.add(contact);
     }
 
+    public void addDraft(String draftMail){
+        draft.add(draftMail);
+    }
+
+    public void setDraft(ArrayList<String> draft) {
+        this.draft = new ArrayList<>(draft);
+    }
+    public ArrayList<String> getDraft() {
+        return new ArrayList<>(draft);
+    }
 
 }

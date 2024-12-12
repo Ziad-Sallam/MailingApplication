@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.Model.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -224,7 +226,7 @@ public class MailService {
     private List<Mail> getMailsFromFolder(Folder folder) {
         List<Mail> mails = new ArrayList<>();
         folder.getFolderMailIds().forEach(mailId -> {
-            Mail mail = getEmail(mailId);
+            Mail mail = getEmail((Integer) mailId);
             if (mail != null) {
                 mails.add(mail);
             }
@@ -275,6 +277,20 @@ public class MailService {
 
     }
 
+    public ArrayList<String> getUserFolders(String email) {
+        User user = getUser(email);
+        if (user == null) {
+            System.out.println("User not found: " + email);
+            return null;
+        }
+        ArrayList<Folder> folders = user.getUserFolders();
+        ArrayList<String> folderNames = new ArrayList<>();
+        for(Folder f : folders) {
+            folderNames.add(f.getName());
+        }
+        return folderNames;
+    }
+
 
     public Folder sortFolder(User user, String folderName, String strategy) {
         User user1 = getUser(user.getEmail());
@@ -304,38 +320,82 @@ public class MailService {
         sortStrategy.sort(folder);
         return folder;
     }
+    public DraftedMail createDrafted(String id, Mail mail) {
+        DraftedMail m = new DraftedMail();
+        m.setTemp(id);
+        m.setBody(mail.getBody());
+        m.setSubject(mail.getSubject());
+        m.setSender(mail.getSender());
+        m.setPriority(mail.getPriority());
+        m.setAttachments(mail.getAttachments());
+        m.setDateSent(m.getDateSent());
+        m.setReceivers(new ArrayList<>(mail.getReceivers()));
+        ObjectMapper mapper = new ObjectMapper();
+        try{
+            mapper.writeValue(new File("data/mails/" + id + ".json"), m);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        User user = getUser(mail.getSender());
+        if (!user.getDraft().contains(id)){
+            user.addDraft(id);
+            setUser(user);
+        }
+
+
+        return m;
+
+    }
+    public DraftedMail getDrafted(String id){
+        ObjectMapper mapper = new ObjectMapper();
+        DraftedMail m = new DraftedMail();
+        try{
+            System.out.println("here");
+            m = mapper.readValue(new File("data/mails/" + id + ".json"),DraftedMail.class);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return m;
+    }
+    public List<DraftedMail> getUserDrafts(String email){
+        User user = getUser(email);
+        List<DraftedMail> drafts = new ArrayList<>();
+        for (String i : user.getDraft()){
+            drafts.add(getDrafted(i));
+        }
+        return drafts;
+    }
+
+    public boolean deleteDraft(String id,String email){
+        User user = getUser(email);
+        File f = new File("data/mails/" + id + ".json");
+
+        ArrayList<String> n = user.getDraft();
+        n.remove(id);
+        user.setDraft(n);
+        setUser(user);
+        return f.delete();
+    }
+
 
 
 }
 class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
-
-
-        mailService.createUser("us8989@example.com", "password123", "User One");
-        mailService.createUser("us56565@example.com", "password456", "User Two");
-        mailService.createUser("us23232@example.com", "password456", "User Three");
-
-
-        ArrayList<String> recipients = new ArrayList<>();
-        recipients.add("user10@example.com");
-        recipients.add("user20@example.com");
-
-        byte[] pdfBytes = "document.pdf".getBytes();
-        byte[] imageBytes = "image.jpg".getBytes();
-
-        List<Attachment> attachments = new ArrayList<>();
-        attachments.add(new Attachment("document.pdf", "application/pdf", pdfBytes));
-        attachments.add(new Attachment("image.jpg", "image/jpeg", imageBytes));
-
-
-        mailService.createEmail("user50@example.com", recipients, "caroline", "hello!", 3,attachments);
+        Mail x = mailService.getEmail(50);
+        DraftedMail z = mailService.createDrafted("xx",x);
+        User u = mailService.getUser("a@ae.com");
+        mailService.getUserDrafts("a@ae.com");
 
 
 
-//        mailService.createUser("user550@example.com", "password123", "User One");
-//        mailService.createUser("user551@example.com", "password123", "User One");
-//        mailService.createUser("user552@example.com", "password123", "User One");
+
+
+//        mailService.createUser("u@e.com", "password123", "User One");
+//        mailService.createUser("z@pe.com", "password123", "User One");
+//        mailService.createUser("a@ae.com", "password123", "User One");
 //        //mailService.createUser("user60@example.com", "password456", "User Two");
 //
 //

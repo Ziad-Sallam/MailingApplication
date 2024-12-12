@@ -60,6 +60,7 @@ function MailView() {
 
         fetchMails();
     }, [params.mailID]);
+
     return (
         <div className="mail-view">
                 <table className={"table table-striped"}>

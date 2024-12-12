@@ -31,6 +31,7 @@ function ListBox() {
             id: 2,
             priority: 0
         },
+
         {
             sender: "zz",
             receiver: ["merer"],
@@ -38,30 +39,47 @@ function ListBox() {
             subject: "aa",
             date: "23/10/2024",
             id: 3,
-            priority: 1
+            priority: 1,
+            temp: ""
         }
     ]);
 
     useEffect(() => {
+
         async function fetchMails() {
             const param = {
                 email: params.user,
-                folder: "Inbox"
+                folder: params.folderName
             };
             console.log(param);
 
             try {
-                const data = await axios.get("http://localhost:8080/api/users/getEmails", { params: param });
-                console.log(data.data);
-                setMails(data.data);
+                if (params.folderName ==="draft"){
+                    const data = await axios.get("http://localhost:8080/api/users/getDrafts", { params: param });
+                    console.log(data.data);
+                    setMails(data.data);
+                    mails.map(mail => {
+                        mail.id = mail.temp
+                    })
+                    console.log(mails);
+
+                }
+                else{
+                    const data = await axios.get("http://localhost:8080/api/users/getEmails", { params: param });
+                    console.log(data.data);
+                    setMails(data.data);
+                }
+
             } catch (error) {
                 console.error('Error fetching emails:', error);
             }
         }
+        
         fetchMails();
-    }, [params.user]);
+    }, [params.folderName, params.user]);
 
     function sort(e) {
+        console.log(mails)
         let sorted;
         console.log(e.target.value);
         switch(e.target.value) {
@@ -111,7 +129,11 @@ function ListBox() {
                 </thead>
                 <tbody>
                 {mails.map((mail, index) => (
-                    <tr key={index} onClick={() => { navigate("/" + params.user + "/" + mail.id) }}>
+                    <tr key={index} onClick={() => {
+                        navigate("/" + params.user + "/" + (mail.id ===0? ('draft/'+mail.temp): mail.id));
+                    }
+                    }
+                    >
                         <td>{mail.sender}</td>
                         <td>{mail.subject}</td>
                         <td>{mail.dateSent}</td>

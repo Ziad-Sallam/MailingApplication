@@ -1,51 +1,99 @@
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 MailBox.propTypes = {
     userEmail: PropTypes.string,
 };
 
 function MailBox() {
+    const urlParams = useParams();
+
     const [to, setTo] = useState('');
     const [body, setBody] = useState('');
     const [subject, setSubject] = useState('');
     const [priority, setPriority] = useState(2);
 
-    function handleEntryChange(e) {
-        const { id, value } = e.target;
-        if (id === 'to') {
-            setTo(value);
-        } else if (id === 'subject') {
-            setSubject(value);
-        } else if (id === 'body') {
-            setBody(value);
-        } else if(id === 'pri'){
-            setPriority(value);
+    // Generate a unique ID if not provided in the URL params
+    const id = useRef(urlParams.id || uuidv4()).current;
+
+    useEffect(() => {
+        async function fetchMails() {
+            if (urlParams.id !== undefined) {
+                try {
+                    const response = await axios.get(`http://localhost:8080/api/users/getDraft`, { params: { id: urlParams.id } });
+                    const m = response.data;
+                    setTo(m.receivers.join(' '));
+                    setBody(m.body);
+                    setSubject(m.subject);
+                    setPriority(m.priority);
+                } catch (error) {
+                    console.error('Error fetching emails:', error);
+                }
+            }
         }
-    }
 
-    const params = useParams();
-    console.log(params);
+        fetchMails();
+    }, [urlParams.id]);
 
-    async function sendMail(e) {
+    const handleEntryChange = (e) => {
+        const { id, value } = e.target;
+        switch (id) {
+            case 'to':
+                setTo(value);
+                break;
+            case 'subject':
+                setSubject(value);
+                break;
+            case 'body':
+                setBody(value);
+                break;
+            case 'pri':
+                setPriority(value);
+                break;
+            default:
+                break;
+        }
+        createDraft();
+    };
 
+    const createDraft = async () => {
         const param = {
-            sender: params.user,
+            sender: urlParams.user,
             receivers: to.split(' '),
             subject: subject,
             body: body,
             priority: priority,
         };
 
-        console.log(param.receiver);
         try {
+            await axios.post(`http://localhost:8080/api/users/createDraft?id=${id}`, param);
+        } catch (error) {
+            console.error('Error posting data:', error);
+        }
+    };
+
+    const sendMail = async () => {
+
+
+        const param = {
+            sender: urlParams.user,
+            receivers: to.split(' '),
+            subject: subject,
+            body: body,
+            priority: priority,
+
+        };
+
+        try {
+            await axios.post(`http://localhost:8080/api/users/deleteDraft/${id}/${urlParams.user}`);
             await axios.post('http://localhost:8080/api/users/send', param);
         } catch (error) {
             console.error('Error posting data:', error);
         }
-    }
+    };
 
     return (
         <div className="d-flex flex-column mb-3 mail-box">
@@ -54,7 +102,7 @@ function MailBox() {
                     <tbody>
                     <tr>
                         <td><label htmlFor="sender">From: </label></td>
-                        <td><h6>{params.user}</h6></td>
+                        <td><h6>{urlParams.user}</h6></td>
                     </tr>
                     <tr>
                         <td><label htmlFor="receiver">To: </label></td>
@@ -65,6 +113,7 @@ function MailBox() {
                                 type="text"
                                 name="receiver"
                                 placeholder="to"
+                                value={to}
                                 onChange={handleEntryChange}
                             /><br />
                         </td>
@@ -78,6 +127,7 @@ function MailBox() {
                                 type="text"
                                 name="subject"
                                 placeholder="subject"
+                                value={subject}
                                 onChange={handleEntryChange}
                             /><br />
                         </td>
@@ -90,13 +140,14 @@ function MailBox() {
                                     className="col-12"
                                     name="message"
                                     placeholder="message"
+                                    value={body}
                                     onChange={handleEntryChange}
                                 />
                         </td>
                     </tr>
                     <tr>
                         <td><label htmlFor="priority">Priority: </label></td>
-                        <td><input id= "pri" className="input input-number" type="number" min="0" max="5" onChange={handleEntryChange}/></td>
+                        <td><input id="pri" className="input input-number" type="number" min="0" max="5" value={priority} onChange={handleEntryChange} /></td>
                     </tr>
                     <tr>
                         <td><label htmlFor="attachment">Attachment: </label></td>

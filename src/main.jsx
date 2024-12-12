@@ -17,17 +17,19 @@ const router  = createBrowserRouter([
                 path: '/:user/send',
                 element: <MailBox />,
             },
-            {
-                path: '/:user/inbox',
-                element: <ListBox />,
-            },
+
             {
                 path: '/:user/:mailID',
                 element: <MailView />,
             },
+
             {
                 path: '/:user/folder/:folderName',
                 element: <ListBox />,
+            },
+            {
+                path: '/:user/draft/:id',
+                element: <MailBox />,
             }
         ]
     },
@@ -42,7 +44,7 @@ const router  = createBrowserRouter([
 
     {
         path: '*',
-        element: <h1>Error 404</h1>
+        element: <h1>Error 404 :)</h1>
     }
 ])
 

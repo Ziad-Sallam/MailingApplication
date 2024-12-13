@@ -1,0 +1,1 @@
+{"id":60,"subject":"caroline","sender":"user50@example.com","receivers":["user10@example.com","user20@example.com"],"body":"hello!","dateSent":"2024-12-11 20:42:12","priority":3,"attachments":[{"fileName":"document.pdf","fileType":"application/pdf","fileContent":"ZG9jdW1lbnQucGRm"},{"fileName":"image.jpg","fileType":"image/jpeg","fileContent":"aW1hZ2UuanBn"}]}

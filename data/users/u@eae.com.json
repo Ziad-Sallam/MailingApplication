@@ -1,0 +1,22 @@
+{
+    "name": "User One",
+    "email": "u@eae.com",
+    "password": "password123",
+    "userFolders": [
+        {
+            "name": "Inbox",
+            "folderMailIds": []
+        },
+        {
+            "name": "Trash",
+            "folderMailIds": []
+        },
+        {
+            "name": "Sent",
+            "folderMailIds": []
+        }
+    ],
+    "sent": [],
+    "received": [],
+    "usercontact": []
+}

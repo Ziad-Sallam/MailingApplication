@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 @Service
 public class MailService {
@@ -171,7 +168,9 @@ public class MailService {
 
         Folder inbox = getFolder(user, "Inbox");
 
-        if (inbox != null && inbox.getFolderMailIds().remove((Integer) mailId)) {
+        if (inbox != null) {
+            inbox.getFolderMailIds().remove((Integer) mailId);
+            assert trash != null;
             trash.addMail(mailId);
             setUser(user);
             System.out.println("Mail ID " + mailId + " moved to Trash for user: " + email);
@@ -225,12 +224,17 @@ public class MailService {
     }
     private List<Mail> getMailsFromFolder(Folder folder) {
         List<Mail> mails = new ArrayList<>();
-        folder.getFolderMailIds().forEach(mailId -> {
-            Mail mail = getEmail((Integer) mailId);
-            if (mail != null) {
-                mails.add(mail);
-            }
-        });
+        for(Map.Entry<Integer,String> m : folder.getFolderMailIds().entrySet()) {
+            Mail mail = getEmail(m.getKey());
+            mails.add(mail);
+        }
+
+//        folder.getFolderMailIds().forEach(mailID -> {
+//            Mail mail = getEmail((Integer) mailId);
+//            if (mail != null) {
+//                mails.add(mail);
+//            }
+//        });
         return mails;
     }
 
@@ -378,16 +382,17 @@ public class MailService {
         return f.delete();
     }
 
-
-
 }
 class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
-        Mail x = mailService.getEmail(50);
-        DraftedMail z = mailService.createDrafted("xx",x);
-        User u = mailService.getUser("a@ae.com");
-        mailService.getUserDrafts("a@ae.com");
+        mailService.createUser("nnnnnnnn@x.com","xx","xx");
+        mailService.createUser("mmmmmmmmm@x.com","xx","xx");
+
+        ArrayList<String> recipients = new ArrayList<>();
+        recipients.add("mmmmmmmmm@x.com");
+
+        mailService.createEmail("nnnnnnnn@x.com",recipients,"hello","welcome to wonder land",2,null);
 
 
 

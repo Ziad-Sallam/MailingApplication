@@ -2,7 +2,9 @@ package com.example.demo.Model;
 
 import com.example.demo.service.MailService;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Map;
 
 
 public class SortByDate implements SortStrategy, Comparator<Mail> {
@@ -15,7 +17,11 @@ public class SortByDate implements SortStrategy, Comparator<Mail> {
 
     @Override
     public void sort(Folder folder) {
-        folder.getFolderMailIds().sort((id1, id2) -> {
+        ArrayList<Integer> list = new ArrayList<>();
+        for(Map.Entry<Integer,String> s : folder.getFolderMailIds().entrySet()){
+            list.add(s.getKey());
+        }
+        list.sort((id1, id2) -> {
             Mail mail1 = mailService.getEmail(id1);
             Mail mail2 = mailService.getEmail(id2);
             return compare(mail1, mail2);

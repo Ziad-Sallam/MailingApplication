@@ -74,7 +74,6 @@ public class MailControllers {
     public ResponseEntity<ArrayList<String>> getUserFolders(@Param("email") String email){
         ArrayList<String> m = mailService.getUserFolders(email);
         return ResponseEntity.ok(m);
-
     }
 
     @PostMapping(value = "/createDraft")

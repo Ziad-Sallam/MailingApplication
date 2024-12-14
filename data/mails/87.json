@@ -1,0 +1,12 @@
+{
+    "id": 87,
+    "subject": "hello",
+    "sender": "nnnnnnnn@x.com",
+    "receivers": [
+        "mmmmmmmmm@x.com"
+    ],
+    "body": "welcome to wonder land",
+    "dateSent": "2024-12-14 13:15:09",
+    "priority": 2,
+    "attachments": []
+}

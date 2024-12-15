@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -16,7 +18,9 @@ public class MailService {
     static SystemData systemData = new SystemData();
 
     public MailService() {
+
         getData();
+//        cleanOldMails();
     }
 
     private static void getData() {
@@ -154,30 +158,6 @@ public class MailService {
         return mail;
     }
 
-    public void moveToTrash(String email, int mailId) {
-        User user = getUser(email);
-        if (user == null) {
-            System.out.println("User not found: " + email);
-            return;
-        }
-
-        Folder trash = getFolder(user, "Trash");
-        if (trash == null) {
-            addNewFolder(user, "Trash");
-        }
-
-        Folder inbox = getFolder(user, "Inbox");
-
-        if (inbox != null) {
-            inbox.getFolderMailIds().remove((Integer) mailId);
-            assert trash != null;
-            trash.addMail(mailId);
-            setUser(user);
-            System.out.println("Mail ID " + mailId + " moved to Trash for user: " + email);
-        } else {
-            System.out.println("Mail ID " + mailId + " not found in Inbox for user: " + email);
-        }
-    }
 
     public Mail getEmail(int id) {
         ObjectMapper mapper = new ObjectMapper();
@@ -346,7 +326,6 @@ public class MailService {
             setUser(user);
         }
 
-
         return m;
 
     }
@@ -382,20 +361,91 @@ public class MailService {
         return f.delete();
     }
 
+    public void cleanOldMails() {
+
+        for (String usermail : systemData.getUsers()) {
+
+            User user = getUser(usermail);
+            Folder trash = getFolder(user, "Trash");
+
+                LocalDateTime timenow = LocalDateTime.now().minusMinutes(1);
+
+                Iterator<Map.Entry<Integer, String>> iterator = trash.getFolderMailIds().entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Integer, String> entry = iterator.next();
+                    System.out.println("here");
+                    LocalDateTime mailDate = LocalDateTime.parse(entry.getValue(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if (mailDate.isBefore(timenow)) {
+
+                        iterator.remove();
+                    }
+                }
+                setUser(user);
+
+        }
+
+        writeData();
+    }
+
+    public ArrayList<Contact> getContacts(String email) {
+        User user = getUser(email);
+        return user.getUsercontact();
+    }
+
+    public void addContacts(Contact contact, String email) {
+        System.out.println(contact.getName());
+        User user = getUser(email);
+        System.out.println(user.getUsercontact().toString());
+        user.addContact(contact);
+
+        setUser(user);
+    }
+
+    public void addFolder(String folderName, String userName){
+        User u = getUser(userName);
+        u.addFolder(folderName);
+        setUser(u);
+    }
+
+    public void moveEmail(String email, int mailId, String fromFolderName, String toFolderName) {
+        User user = getUser(email);
+        if (user == null) {
+            System.out.println("User not found: " + email);
+            return;
+        }
+
+
+        Folder fromFolder = getFolder(user, fromFolderName);
+        if (fromFolder == null) {
+            System.out.println("Folder not found: " + fromFolderName);
+            return;
+        }
+
+
+        Folder toFolder = getFolder(user, toFolderName);
+        if (toFolder == null) {
+
+            addNewFolder(user, toFolderName);
+            toFolder = getFolder(user, toFolderName);
+        }
+
+
+        if (toFolder != null) {
+            fromFolder.getFolderMailIds().remove((Integer) mailId);
+
+            toFolder.addMail(mailId);
+            setUser(user);
+            System.out.println("Mail ID " + mailId + " moved from " + fromFolderName + " to " + toFolderName + " for user: " + email);
+        } else {
+            System.out.println("Mail ID " + mailId + " not found in " + fromFolderName + " for user: " + email);
+        }
+    }
+
 }
 class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
-        mailService.createUser("nnnnnnnn@x.com","xx","xx");
-        mailService.createUser("mmmmmmmmm@x.com","xx","xx");
-
-        ArrayList<String> recipients = new ArrayList<>();
-        recipients.add("mmmmmmmmm@x.com");
-
-        mailService.createEmail("nnnnnnnn@x.com",recipients,"hello","welcome to wonder land",2,null);
-
-
-
+        mailService.moveEmail("mmmmmmmmm@x.com",87,"Inbox","Trash");
 
 
 //        mailService.createUser("u@e.com", "password123", "User One");

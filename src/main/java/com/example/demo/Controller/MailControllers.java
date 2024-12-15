@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.Model.Contact;
 import com.example.demo.Model.DraftedMail;
 import com.example.demo.Model.Mail;
 import com.example.demo.Model.User;
@@ -54,7 +55,6 @@ public class MailControllers {
     public ResponseEntity<Mail> send(@RequestBody  Mail mail) {
         Mail m =mailService.createEmail(mail.getSender(), new ArrayList<>(mail.getReceivers()) ,mail.getSubject(),mail.getBody(), mail.getPriority(),mail.getAttachments());
         return ResponseEntity.ok(m);
-
     }
 
     @GetMapping(value = "/getEmails" ,params = {"email", "folder"})
@@ -100,6 +100,31 @@ public class MailControllers {
     public ResponseEntity<Boolean> deleteDraft(@PathVariable("id") String id, @PathVariable("email") String email){
         Boolean b = mailService.deleteDraft(id,email);
         return ResponseEntity.ok(b);
+    }
+
+    @PostMapping(value = "/addContact/{mail}")
+    public ResponseEntity<Contact> addContact(@RequestBody Contact contact,@PathVariable("mail") String mail){
+        System.out.println(contact.getName());
+        mailService.addContacts(contact,mail);
+        return ResponseEntity.ok(contact);
+    }
+
+    @GetMapping(value = "/getContacts/{mail}")
+    public ResponseEntity<ArrayList<Contact>> getContacts(@PathVariable("mail") String mail){
+        User u = mailService.getUser(mail);
+        return ResponseEntity.ok(u.getUsercontact());
+    }
+
+    @PostMapping(value = "/addFolder/{email}")
+    public ResponseEntity<String> addFolder(@RequestBody String  folderName,@PathVariable("email") String email){
+        mailService.addFolder(folderName,email);
+        return ResponseEntity.ok(folderName);
+    }
+
+    @PostMapping(value = "/moveFolder/{email}", params = {"mailId","fromFolder","toFolder"})
+    public ResponseEntity<String> moveFolder(@PathVariable("email") String email, @RequestParam("mailId") int id,@RequestParam("fromFolder") String fromFolder,@RequestParam("toFolder") String toFolder){
+        mailService.moveEmail(email,id,fromFolder,toFolder);
+        return ResponseEntity.ok(email);
     }
 
 }

@@ -2,11 +2,15 @@ import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import AddContact from "./AddContact.jsx";
 
 
 function ContactBox() {
     const navigate = useNavigate();
     const params = useParams();
+    const [contactBox, setContactBox] = useState(false);
+
+
 
     const [contact, setContacts] = useState([
         {
@@ -20,35 +24,22 @@ function ContactBox() {
         }
     ]);
 
-    // useEffect(() => {
 
-    //     async function fetchMails() {
-    //         const param = {
-    //             email: params.user,
-    //             folder: params.folderName
-    //         };
-    //         console.log(param);
+    useEffect(() => {
+        async function fetchMails() {
+            try {
 
-    //         try {
-    //            
-    //                 const data = await axios.get("http://localhost:8080/api/users/getDrafts", { params: param });
-    //                 console.log(data.data);
-    //                 setMails(data.data);
-    //                 mails.map(mail => {
-    //                     mail.id = mail.temp
-    //                 })
-    //                 console.log(mails);
+                const data = await axios.get(`http://localhost:8080/api/users/getContacts/${params.user}`)
+                console.log(data.data);
+                const sorted = [...data.data].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+                setContacts(sorted);
+            } catch (error) {
+                console.error('Error fetching emails:', error);
+            }
+        }
 
-    //             
-    //             
-
-    //         } catch (error) {
-    //             console.error('Error fetching emails:', error);
-    //         }
-    //     }
-        
-    //     fetchMails();
-    // }, [params.folderName, params.user]);
+        fetchMails();
+    }, [params.user]);
 
     // function sort(e) {
     //     console.log(mails)
@@ -98,23 +89,27 @@ function ContactBox() {
                 </tr>
                 </thead>
                 <tbody>
-                {contact.map((name, userEmail) => (
+                {contact.map((c,index) => (
                     // <tr key={userEmail} onClick={() => {
                     //     navigate("/" + params.user + "/" + (mail.id ===0? ('draft/'+mail.temp): mail.id));
                     // }
                     // }
                     //>
-                    <tr>
-                        <td>{contact.name}</td>
-                        <td>{contact.userEmail}</td>
+                    <tr key={index}>
+                        <td>{c.name}</td>
+
+                        <td>{c.userEmails}</td>
                     </tr>
                 ))}
                 </tbody>
             </table>
             <button  className="btn btn-primary btn-lg btn-block position-relative"
-                     style={{ marginLeft: '85%', marginTop: '-2px', fontSize:'1.1rem'}}>
+                     style={{ marginLeft: '85%', marginTop: '-2px', fontSize:'1.1rem'}}
+                     onClick={() => setContactBox(!contactBox)}
+            >
             Add Contact
             </button>
+            {contactBox && <AddContact/>}
         </div>
     );
 }

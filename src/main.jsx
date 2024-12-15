@@ -20,7 +20,7 @@ const router  = createBrowserRouter([
             },
 
             {
-                path: '/:user/:mailID',
+                path: '/:user/:folderName/:mailID',
                 element: <MailView />,
             },
 
@@ -39,7 +39,7 @@ const router  = createBrowserRouter([
         ]
     },
     {
-        path: '/login',
+        path: '/',
         element: <Login />,
     },
     {

@@ -63,12 +63,18 @@ function ListBox() {
                     })
                     console.log(mails);
 
+
                 }
                 else{
                     const data = await axios.get("http://localhost:8080/api/users/getEmails", { params: param });
                     console.log(data.data);
-                    setMails(data.data);
+                    const sorted = [...data.data].sort((a, b) => b.id - a.id);
+
+                    setMails(sorted);
+
                 }
+
+
 
             } catch (error) {
                 console.error('Error fetching emails:', error);
@@ -131,7 +137,7 @@ function ListBox() {
                 <tbody>
                 {mails.map((mail, index) => (
                     <tr key={index} onClick={() => {
-                        navigate("/" + params.user + "/" + (mail.id ===0? ('draft/'+mail.temp): mail.id));
+                        navigate("/" + params.user + "/"+ (params.folderName === "draft"? "" :params.folderName +"/")+ (mail.id ===0? ('draft/'+mail.temp): mail.id));
                     }
                     }
                     >

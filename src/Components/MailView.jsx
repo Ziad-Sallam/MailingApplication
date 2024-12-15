@@ -29,7 +29,6 @@ function MailView() {
     console.log(maill)
 
 
-
     const  [mail,setMail] = useState({
         sender : "hello",
             receiver : ["merer"],
@@ -40,8 +39,10 @@ function MailView() {
             priority : 1
     })
 
+    const [selectedFolder,setSelectedFolder] = useState("Inbox")
 
 
+    const [folders, setFolders] = useState(["New folder", "New folder1"]);
     useEffect(() => {
         async function fetchMails() {
             const param = {
@@ -56,10 +57,44 @@ function MailView() {
             } catch (error) {
                 console.error('Error fetching emails:', error);
             }
+
+            const paramf = {
+                email: params.user,
+            };
+            try {
+                const response = await axios.get("http://localhost:8080/api/users/getFolders", { params: paramf });
+                let x = response.data.filter((item) => ((item !== "Trash") && (item !== "Sent") && (item !== params.folderName)))
+                setFolders(x);
+                console.log(response.data)
+            } catch (error) {
+                console.error('Error fetching folders:', error);
+            }
         }
 
         fetchMails();
-    }, [params.mailID]);
+    }, [params.mailID, params.user, params.folderName]);
+
+    async function moveFolder(e) {
+        try {
+            const param = {
+                mailId: params.mailID,
+                fromFolder: params.folderName,
+                toFolder: e.target.value
+            };
+
+            console.log(e.target.value);
+
+            const url =
+                `http://localhost:8080/api/users/moveFolder/${params.user}?mailId=${param.mailId}&fromFolder=${param.fromFolder}&toFolder=${e.target.id === "trash"?"Trash" :selectedFolder}`;
+
+            await axios.post(url);
+        } catch (error) {
+            console.error('Error moving folder:', error);
+        }
+    }
+
+
+
 
     return (
         <div className="mail-view">
@@ -90,15 +125,20 @@ function MailView() {
 
             <div style={{marginTop: "20px"}}>
                 <label>Move to: </label>
-                <select style={{marginRight: "10px", marginLeft: "10px"}}>
-                    <option value={"folder1"}>folder1</option>
-                    <option value={"folder2"}>folder2</option>
-                    <option value={"folder3"}>folder3</option>
+                <select style={{marginRight: "10px", marginLeft: "10px"}}
+                        value={selectedFolder}
+                        onChange={(e) => setSelectedFolder(e.target.value)}
+                >
+                    {folders.map((name,index) => (<option key={index} value={name}>{name}</option>))}
+
                 </select>
-                <button className={"btn btn-outline-dark btn-sm"}>Move</button>
-                <button className={"btn "}
+                <button className={"btn btn-outline-dark btn-sm"} onClick={moveFolder}>Move</button>
+                <button className={"btn trash"}
+                        id={"trash"}
                         style={{marginLeft: "89%", marginRight: "20px"}}
-                ><CiTrash style={{fontSize: "1.7rem"}}/></button>
+                        onClick={moveFolder}
+
+                ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>
             </div>
 
 

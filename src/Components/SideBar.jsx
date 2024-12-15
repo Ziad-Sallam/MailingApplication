@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import {FaFolder} from "react-icons/fa";
 import {RiDraftFill, RiFolderAddLine} from "react-icons/ri";
+import AddFolder from "./AddFolder.jsx";
 
 function SideBar() {
     const params = useParams();
     const navigate = useNavigate();
     const [folders, setFolders] = useState(["New folder", "New folder1"]);
+    const [addFolder,setAddFolder] = useState(false);
 
     useEffect(() => {
         async function fetchFolders() {
@@ -48,7 +50,7 @@ function SideBar() {
                             {folder === "Trash" && <CiTrash style={{fontSize: "1.7rem"}}/>}
                             {folder === "Inbox" && <MdInbox style={{fontSize: "1.7rem"}}/>}
                             {folder === "Sent" && <IoIosSend style={{fontSize: "1.7rem"}}/>}
-                            {folder !== "Trash" || folder !== "Inbox" || folder !== "Sent" && (
+                            {(folder !== "Trash" && folder !== "Inbox" && folder !== "Sent") && (
                                 <FaFolder style={{fontSize: "1.7rem"}}/>)}
                             {folder}
 
@@ -59,10 +61,11 @@ function SideBar() {
                 <MdContacts style={{fontSize: "1.7rem"}}/>
                  Contacts
             </button>
-            <button className="btn">
+            <button className="btn" onClick={() =>(setAddFolder(!addFolder))}>
                 <RiFolderAddLine style={{fontSize: "1.7rem"}}/>
                  Add Folders
             </button>
+            {addFolder && <AddFolder/>}
         </div>
     );
 }

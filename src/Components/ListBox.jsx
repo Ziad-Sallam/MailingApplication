@@ -73,6 +73,7 @@ function ListBox() {
             } catch (error) {
                 console.error('Error fetching emails:', error);
             }
+            
         }
         
         fetchMails();

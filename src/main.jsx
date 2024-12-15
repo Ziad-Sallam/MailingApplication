@@ -7,6 +7,7 @@ import Register from "./Pages/register.jsx";
 import MailBox from "./Components/MailBox.jsx";
 import ListBox from "./Components/ListBox.jsx";
 import MailView from "./Components/MailView.jsx";
+import ContactBox from './Components/ContactBox.jsx'
 
 const router  = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router  = createBrowserRouter([
             {
                 path: '/:user/draft/:id',
                 element: <MailBox />,
+            },
+            {
+                path: '/:user/contact',
+                element: <ContactBox />,
             }
         ]
     },

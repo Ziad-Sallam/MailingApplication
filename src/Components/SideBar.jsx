@@ -1,11 +1,11 @@
-import {MdEdit, MdInbox} from "react-icons/md";
+import {MdContacts, MdEdit, MdInbox} from "react-icons/md";
 import { IoIosSend } from "react-icons/io";
 import { CiTrash } from "react-icons/ci";
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {FaFolder} from "react-icons/fa";
-import {RiDraftFill} from "react-icons/ri";
+import {RiDraftFill, RiFolderAddLine} from "react-icons/ri";
 
 function SideBar() {
     const params = useParams();
@@ -55,6 +55,14 @@ function SideBar() {
                         </button>
                     </>)
             )}
+            <button className="btn" onClick={() => navigate("/" + params.user + "/contact")}>
+                <MdContacts style={{fontSize: "1.7rem"}}/>
+                 Contacts
+            </button>
+            <button className="btn">
+                <RiFolderAddLine style={{fontSize: "1.7rem"}}/>
+                 Add Folders
+            </button>
         </div>
     );
 }

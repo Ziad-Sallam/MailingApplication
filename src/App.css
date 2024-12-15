@@ -1,7 +1,7 @@
 textarea{
   height: 40vh;
 }
-.mail-view,.mail-box,.list-box{
+.mail-view,.mail-box,.list-box,.Contact-box{
   margin: 1vmax;
   flex: 8;
   padding: 2vmax;
@@ -14,8 +14,10 @@ textarea{
 }
 .side-bar{
   display: flex;
+  justify-content: start;
+  align-items: start;
   flex-direction: column;
-  margin: 1vmax;
+  margin: 2vmax;
   flex: 1;
 }
 

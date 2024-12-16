@@ -4,7 +4,8 @@ import com.example.demo.Model.Contact;
 import com.example.demo.Model.DraftedMail;
 import com.example.demo.Model.Mail;
 import com.example.demo.Model.User;
-import com.example.demo.service.MailService;
+import com.example.demo.Service.MailService;
+import com.example.demo.Service.MailServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +17,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class MailControllers {
-    private final MailService mailService;
+    private final MailServiceProxy mailService;
 
     @Autowired
-    public MailControllers(MailService mailService) {
+    public MailControllers(MailServiceProxy mailService) {
         this.mailService = mailService;
     }
 

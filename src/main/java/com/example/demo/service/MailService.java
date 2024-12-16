@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.example.demo.Service;
 
 import com.example.demo.Model.*;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
@@ -13,14 +13,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.example.demo.Service.MailServiceProxy.systemData;
+
 @Service
 public class MailService {
-    static SystemData systemData = new SystemData();
+    // static SystemData systemData = new SystemData();
 
     public MailService() {
-
         getData();
-//        cleanOldMails();
+        cleanOldMails();
+    }
+
+    public MailService(User user) {
     }
 
     private static void getData() {
@@ -35,7 +39,7 @@ public class MailService {
         }
     }
 
-    private static void writeData() {
+    public  void writeData() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             mapper.writeValue(new File("data/data.json"), systemData);
@@ -54,10 +58,10 @@ public class MailService {
 
         try {
             ArrayList<String> temp = systemData.getUsers();
-            if (temp.contains(email)) {
-                System.out.println("User already exists");
-                return;
-            }
+//            if (temp.contains(email)) {
+//                System.out.println("User already exists");
+//                return;
+//            }
 
             createDirectoriesIfNeeded("data/users/" + email + ".json");
             mapper.writeValue(new File("data/users/" + email + ".json"), user);
@@ -124,10 +128,10 @@ public class MailService {
             User sender = getUser(from);
             if (sender != null) {
                 Folder sentFolder = getFolder(sender, "Sent");
-                if (sentFolder == null) {
-                    addNewFolder(sender, "Sent");
-                    sentFolder = getFolder(sender, "Sent"); // Ensure it's retrieved after creation
-                }
+//                if (sentFolder == null) {
+//                    addFolder(sender, "Sent");
+//                    sentFolder = getFolder(sender, "Sent"); // Ensure it's retrieved after creation
+//                }
                 sentFolder.addMail(systemData.getNumberOfMails());
                 sender.getSent().add(systemData.getNumberOfMails());
                 setUser(sender);
@@ -139,10 +143,10 @@ public class MailService {
                 User receiver = getUser(receiverEmail);
                 if (receiver != null) {
                     Folder inbox = getFolder(receiver, "Inbox");
-                    if (inbox == null) {
-                        addNewFolder(receiver, "Inbox");
-                        inbox = getFolder(receiver, "Inbox"); // Ensure it's retrieved after creation
-                    }
+//                    if (inbox == null) {
+//                        addNewFolder(receiver, "Inbox");
+//                        inbox = getFolder(receiver, "Inbox"); // Ensure it's retrieved after creation
+//                    }
                     inbox.addMail(systemData.getNumberOfMails());
                     receiver.addReceivedMail(systemData.getNumberOfMails());
                     setUser(receiver);
@@ -158,6 +162,36 @@ public class MailService {
         return mail;
     }
 
+//    public void moveToTrash(String email, int mailId, String fromFolderName) {
+//        User user = getUser(email);
+//        if (user == null) {
+//            System.out.println("User not found: " + email);
+//            return;
+//        }
+//
+//        Folder trash = getFolder(user, "Trash");
+//        if (trash == null) {
+//            addNewFolder(user, "Trash");
+//            trash = getFolder(user, "Trash");
+//        }
+//
+//        Folder fromFolder = getFolder(user, fromFolderName);
+//        if (fromFolder == null) {
+//            System.out.println("Folder not found: " + fromFolderName);
+//            return;
+//        }
+//
+//        if (fromFolder!=null) {
+//
+//            fromFolder.getFolderMailIds().remove((Integer) mailId);
+//            assert trash!=null;
+//            trash.addMail(mailId);
+//            setUser(user);
+//            System.out.println("Mail ID " + mailId + " moved from " + fromFolderName + " to Trash for user: " + email);
+//        } else {
+//            System.out.println("Mail ID " + mailId + " not found in " + fromFolderName + " for user: " + email);
+//        }
+//    }
 
     public Mail getEmail(int id) {
         ObjectMapper mapper = new ObjectMapper();
@@ -176,10 +210,10 @@ public class MailService {
                 .orElse(null);
     }
 
-    public void addNewFolder(User user, String folderName) {
-        user.addFolder(folderName);
-        setUser(user);
-        System.out.println("Folder '" + folderName + "' created for user: " + user.getEmail());
+    public void addFolder(String folderName, String userName){
+        User u = getUser(userName);
+        u.addFolder(folderName);
+        setUser(u);
     }
 
 
@@ -195,16 +229,17 @@ public class MailService {
     }
 
 
-    private void createDirectoriesIfNeeded(String filePath) {
+    public void createDirectoriesIfNeeded(String filePath) {
         File file = new File(filePath);
         File parentDir = file.getParentFile();
         if (!parentDir.exists()) {
             parentDir.mkdirs();
         }
     }
-    private List<Mail> getMailsFromFolder(Folder folder) {
+
+    public List<Mail> getMailsFromFolder(Folder folder) {
         List<Mail> mails = new ArrayList<>();
-        for(Map.Entry<Integer,String> m : folder.getFolderMailIds().entrySet()) {
+        for (Map.Entry<Integer, String> m : folder.getFolderMailIds().entrySet()) {
             Mail mail = getEmail(m.getKey());
             mails.add(mail);
         }
@@ -218,174 +253,180 @@ public class MailService {
         return mails;
     }
 
-    public List<Mail> getMailsFromFolder(String email,String folder) {
+    public List<Mail> getMailsFromFolder(String email, String folder) {
         User user = getUser(email);
-        if (user == null) {
-            System.out.println("User not found: " + email);
-            return null;
-        }
+//        if (user == null) {
+//            System.out.println("User not found: " + email);
+//            return null;
+//        }
         Folder f = getFolder(user, folder);
         return getMailsFromFolder(f);
 
     }
 
-    public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue) {
-        User user1 = getUser(user.getEmail());
-        if (user1 != null) {
-            Folder folder = getFolder(user1, folderName);
-            if (folder != null) {
-                List<Mail> folderMails = getMailsFromFolder(folder);
-                IMailFilter filter = null;
-                switch (filterType.toLowerCase()) {
-                    case "sender":
-                        filter = new FilterBySender(filterValue);
-                        break;
-                    case "subject":
-                        filter = new FilterBySubject(filterValue);
-                        break;
-                    default:
-                        System.out.println("Invalid filter type: " + filterType);
-                        return List.of();
-                }
-                if (filter != null) {
-                    List<Mail> filteredMails = filter.applyFilter(folderMails);
-                    return filteredMails;
-                }
-            } else {
-                System.out.println("Folder not found: " + folderName);
-            }
-        } else {
-            System.out.println("User not found: " + user.getEmail());
-        }
-        return List.of();
-
-    }
+//    public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue) {
+//        User user1 = getUser(user.getEmail());
+//        if (user1 != null) {
+//            Folder folder = getFolder(user1, folderName);
+//            if (folder != null) {
+//                List<Mail> folderMails = getMailsFromFolder(folder);
+//                IMailFilter filter = null;
+//                switch (filterType.toLowerCase()) {
+//                    case "sender":
+//                        filter = new FilterBySender(filterValue);
+//                        break;
+//                    case "subject":
+//                        filter = new FilterBySubject(filterValue);
+//                        break;
+//                    default:
+//                        System.out.println("Invalid filter type: " + filterType);
+//                        return List.of();
+//                }
+//                if (filter != null) {
+//                    List<Mail> filteredMails = filter.applyFilter(folderMails);
+//                    return filteredMails;
+//                }
+//            } else {
+//                System.out.println("Folder not found: " + folderName);
+//            }
+//        } else {
+//            System.out.println("User not found: " + user.getEmail());
+//        }
+//        return List.of();
+//
+//    }
 
     public ArrayList<String> getUserFolders(String email) {
         User user = getUser(email);
-        if (user == null) {
-            System.out.println("User not found: " + email);
-            return null;
-        }
+//        if (user == null) {
+//            System.out.println("User not found: " + email);
+//            return null;
+//        }
         ArrayList<Folder> folders = user.getUserFolders();
         ArrayList<String> folderNames = new ArrayList<>();
-        for(Folder f : folders) {
+        for (Folder f : folders) {
             folderNames.add(f.getName());
         }
         return folderNames;
     }
 
 
-    public Folder sortFolder(User user, String folderName, String strategy) {
-        User user1 = getUser(user.getEmail());
-        Folder folder = getFolder(user1, folderName);
+//    public Folder sortFolder(User user, String folderName, String strategy) {
+//        User user1 = getUser(user.getEmail());
+//        Folder folder = getFolder(user1, folderName);
+//
+//        SortStrategy sortStrategy;
+//        switch (strategy.toLowerCase()) {
+//            case "date":
+//                sortStrategy = new SortByDate();
+//                break;
+//            case "sender":
+//                sortStrategy = new SortBySender();
+//                break;
+//            case "subject":
+//                sortStrategy = new SortBySubject();
+//                break;
+//            case "importance":
+//                sortStrategy = new SortByPriority();
+//                break;
+//            case "body":
+//                sortStrategy = new SortByBody();
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Invalid sorting strategy");
+//        }
+//
+//        sortStrategy.sort(folder);
+//        return folder;
+//    }
 
-        SortStrategy sortStrategy;
-        switch (strategy.toLowerCase()) {
-            case "date":
-                sortStrategy = new SortByDate();
-                break;
-            case "sender":
-                sortStrategy = new SortBySender();
-                break;
-            case "subject":
-                sortStrategy = new SortBySubject();
-                break;
-            case "importance":
-                sortStrategy = new SortByPriority();
-                break;
-            case "body":
-                sortStrategy = new SortByBody();
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid sorting strategy");
-        }
+//    public DraftedMail createDrafted(String id, Mail mail) {
+//        DraftedMail m = new DraftedMail();
+//        m.setTemp(id);
+//        m.setBody(mail.getBody());
+//        m.setSubject(mail.getSubject());
+//        m.setSender(mail.getSender());
+//        m.setPriority(mail.getPriority());
+//        m.setAttachments(mail.getAttachments());
+//        m.setDateSent(m.getDateSent());
+//        m.setReceivers(new ArrayList<>(mail.getReceivers()));
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            mapper.writeValue(new File("data/mails/" + id + ".json"), m);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        User user = getUser(mail.getSender());
+//        if (!user.getDraft().contains(id)) {
+//            user.addDraft(id);
+//            setUser(user);
+//        }
+//
+//
+//        return m;
+//
+//    }
 
-        sortStrategy.sort(folder);
-        return folder;
-    }
-    public DraftedMail createDrafted(String id, Mail mail) {
-        DraftedMail m = new DraftedMail();
-        m.setTemp(id);
-        m.setBody(mail.getBody());
-        m.setSubject(mail.getSubject());
-        m.setSender(mail.getSender());
-        m.setPriority(mail.getPriority());
-        m.setAttachments(mail.getAttachments());
-        m.setDateSent(m.getDateSent());
-        m.setReceivers(new ArrayList<>(mail.getReceivers()));
-        ObjectMapper mapper = new ObjectMapper();
-        try{
-            mapper.writeValue(new File("data/mails/" + id + ".json"), m);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        User user = getUser(mail.getSender());
-        if (!user.getDraft().contains(id)){
-            user.addDraft(id);
-            setUser(user);
-        }
+//    public DraftedMail getDrafted(String id) {
+//        ObjectMapper mapper = new ObjectMapper();
+//        DraftedMail m = new DraftedMail();
+//        try {
+//            System.out.println("here");
+//            m = mapper.readValue(new File("data/mails/" + id + ".json"), DraftedMail.class);
+//
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return m;
+//    }
 
-        return m;
+//    public List<DraftedMail> getUserDrafts(String email) {
+//        User user = getUser(email);
+//        List<DraftedMail> drafts = new ArrayList<>();
+//        for (String i : user.getDraft()) {
+//            drafts.add(getDrafted(i));
+//        }
+//        return drafts;
+//    }
 
-    }
-    public DraftedMail getDrafted(String id){
-        ObjectMapper mapper = new ObjectMapper();
-        DraftedMail m = new DraftedMail();
-        try{
-            System.out.println("here");
-            m = mapper.readValue(new File("data/mails/" + id + ".json"),DraftedMail.class);
+//    public boolean deleteDraft(String id, String email) {
+//        User user = getUser(email);
+//        File f = new File("data/mails/" + id + ".json");
+//
+//        ArrayList<String> n = user.getDraft();
+//        n.remove(id);
+//        user.setDraft(n);
+//        setUser(user);
+//        return f.delete();
+//    }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return m;
-    }
-    public List<DraftedMail> getUserDrafts(String email){
-        User user = getUser(email);
-        List<DraftedMail> drafts = new ArrayList<>();
-        for (String i : user.getDraft()){
-            drafts.add(getDrafted(i));
-        }
-        return drafts;
-    }
-
-    public boolean deleteDraft(String id,String email){
-        User user = getUser(email);
-        File f = new File("data/mails/" + id + ".json");
-
-        ArrayList<String> n = user.getDraft();
-        n.remove(id);
-        user.setDraft(n);
-        setUser(user);
-        return f.delete();
-    }
 
     public void cleanOldMails() {
-
         for (String usermail : systemData.getUsers()) {
-
             User user = getUser(usermail);
             Folder trash = getFolder(user, "Trash");
-
-                LocalDateTime timenow = LocalDateTime.now().minusMinutes(1);
+            if (trash != null) {
+                LocalDateTime timenow = LocalDateTime.now().minusMinutes(2);
 
                 Iterator<Map.Entry<Integer, String>> iterator = trash.getFolderMailIds().entrySet().iterator();
                 while (iterator.hasNext()) {
                     Map.Entry<Integer, String> entry = iterator.next();
-                    System.out.println("here");
                     LocalDateTime mailDate = LocalDateTime.parse(entry.getValue(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     if (mailDate.isBefore(timenow)) {
-
                         iterator.remove();
                     }
                 }
-                setUser(user);
 
+                setUser(user);
+            }
         }
+
+
+
 
         writeData();
     }
+
 
     public ArrayList<Contact> getContacts(String email) {
         User user = getUser(email);
@@ -401,51 +442,31 @@ public class MailService {
         setUser(user);
     }
 
-    public void addFolder(String folderName, String userName){
-        User u = getUser(userName);
-        u.addFolder(folderName);
-        setUser(u);
-    }
-
-    public void moveEmail(String email, int mailId, String fromFolderName, String toFolderName) {
-        User user = getUser(email);
-        if (user == null) {
-            System.out.println("User not found: " + email);
-            return;
-        }
 
 
-        Folder fromFolder = getFolder(user, fromFolderName);
-        if (fromFolder == null) {
-            System.out.println("Folder not found: " + fromFolderName);
-            return;
-        }
-
-
-        Folder toFolder = getFolder(user, toFolderName);
-        if (toFolder == null) {
-
-            addNewFolder(user, toFolderName);
-            toFolder = getFolder(user, toFolderName);
-        }
-
-
-        if (toFolder != null) {
-            fromFolder.getFolderMailIds().remove((Integer) mailId);
-
-            toFolder.addMail(mailId);
-            setUser(user);
-            System.out.println("Mail ID " + mailId + " moved from " + fromFolderName + " to " + toFolderName + " for user: " + email);
-        } else {
-            System.out.println("Mail ID " + mailId + " not found in " + fromFolderName + " for user: " + email);
-        }
-    }
 
 }
 class TestMailService {
     public static void main(String[] args) {
-        MailService mailService = new MailService();
-        mailService.moveEmail("mmmmmmmmm@x.com",87,"Inbox","Trash");
+        MailServiceProxy mailServiceProxy = new MailServiceProxy();
+        mailServiceProxy.createUser("k.com","xx","xx");
+        mailServiceProxy.createUser("w.com","xx","xx");
+
+        ArrayList<String> recipients = new ArrayList<>();
+        recipients.add("k.com");
+        //  mailServiceProxy.addNewFolder(mailServiceProxy.getUser("k.com"),"newfolder");
+        //  mailServiceProxy.moveEmail("k.com",93,"inbox","newfolder");
+        ArrayList<String> emails = new ArrayList<>();
+        emails.add("shosho.com");
+        Contact c =new Contact(emails,"SHAHD");
+
+        mailServiceProxy.addContacts(c,"k.com");
+
+        // mailServiceProxy.createEmail("w.com",recipients,"hello","welcome to wonder land",2,null);
+
+//mailService.moveToTrash("k.com",91);
+//mailService.cleanOldMails("k.com");
+
 
 
 //        mailService.createUser("u@e.com", "password123", "User One");
@@ -461,13 +482,13 @@ class TestMailService {
 //
 //
 //      mailService.createEmail("user552@example.com", recipients, "caroline", "hello!", 3);
-       // mailService.createEmail("user50@example.com", recipients, "shosho", "Don't forget our meeting tomorrow!", 3);
+        // mailService.createEmail("user50@example.com", recipients, "shosho", "Don't forget our meeting tomorrow!", 3);
 
-      //  mailService.createEmail("user50@example.com", recipients, "mommon", "Don't forget our meeting tomorrow!", 3);
+        //  mailService.createEmail("user50@example.com", recipients, "mommon", "Don't forget our meeting tomorrow!", 3);
 
 
 //        System.out.println("\nInbox for user60@example.com:");
-       // User user2 = mailService.getUser("user60@example.com");
+        // User user2 = mailService.getUser("user60@example.com");
 //        if (user2 != null) {
 //            Folder inbox = user2.getUserFolders().stream()
 //                    .filter(folder -> folder.getName().equalsIgnoreCase("Inbox"))
@@ -488,10 +509,10 @@ class TestMailService {
 
 
         //System.out.println("\nMoving mail to Trash for user2@example.com...");
-       // mailService.moveToTrash("user20@example.com", 30);
+        // mailService.moveToTrash("user20@example.com", 30);
 
         // Step 6: Display user2's Trash folder
-       // System.out.println("\nTrash for user60@example.com:");
+        // System.out.println("\nTrash for user60@example.com:");
 //        if (user2 != null) {
 //            Folder trash = user2.getUserFolders().stream()
 //                    .filter(folder -> folder.getName().equalsIgnoreCase("Trash"))
@@ -535,14 +556,14 @@ class TestMailService {
         //mailService.addNewFolder(user1,"new");
         // mailService.renamefolder(user1,"new","updatedname");
         //mailService.deletefolder(user1,"updatedname");
-       // Folder sorted= mailService.sortFolder(user2,"inbox","subject");
+        // Folder sorted= mailService.sortFolder(user2,"inbox","subject");
 //        List<Mail> filteredMails = mailService.filterFolderMails(user2, "Inbox", "sender", "user50@example.com");
 //
 //        for (Mail mail : filteredMails) {
 //            System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject() + ", Sender: " + mail.getSender() + ", Date: " + mail.getDateSent() + ", Priority: " + mail.getPriority());
 //        }
 
-       // System.out.println("\nSorted Folder: " + sorted.getName());
+        // System.out.println("\nSorted Folder: " + sorted.getName());
 //        sorted.getFolderMailIds().forEach(mailId -> {
 //            Mail mail = mailService.getEmail(mailId);
 //            if (mail != null) {

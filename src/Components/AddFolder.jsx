@@ -7,7 +7,7 @@ import {useParams} from "react-router-dom";
 function AddFolder() {
     const user = useParams().user;
 
-    const [name, setName] = useState("");
+    const [name, setName] = useState('');
 
 
 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -118,6 +119,8 @@ public class MailControllers {
 
     @PostMapping(value = "/addFolder/{email}")
     public ResponseEntity<String> addFolder(@RequestBody String  folderName,@PathVariable("email") String email){
+        folderName = folderName.replace("+"," ");
+        folderName = folderName.replace("="," ");
         mailService.addFolder(folderName,email);
         return ResponseEntity.ok(folderName);
     }
@@ -126,6 +129,37 @@ public class MailControllers {
     public ResponseEntity<String> moveFolder(@PathVariable("email") String email, @RequestParam("mailId") int id,@RequestParam("fromFolder") String fromFolder,@RequestParam("toFolder") String toFolder){
         mailService.moveEmail(email,id,fromFolder,toFolder);
         return ResponseEntity.ok(email);
+    }
+
+    @PostMapping(value = "/deleteContact/{name}/{email}")
+    public ResponseEntity<Boolean> deleteContact(@PathVariable("name") String name, @PathVariable("email") String email){
+        Boolean b = mailService.deleteContact(name ,email);
+        return ResponseEntity.ok(b);
+    }
+
+        @PostMapping("/editContact/{user}")
+        public ResponseEntity<?> editContact(@PathVariable String user,
+                                             @RequestBody Map<String, Contact> contacts) {
+            Contact oldContact = contacts.get("oldContact");
+            Contact newContact = contacts.get("newContact");
+
+            mailService.editContact(oldContact,newContact,user);
+
+            return ResponseEntity.ok("Contact updated successfully");
+        }
+
+
+
+    @PostMapping(value = "/deleteFolder/{name}/{email}")
+    public ResponseEntity<String> deleteFolder(@PathVariable("name") String name, @PathVariable("email") String email){
+        mailService.deletefolder(email ,name);
+        return ResponseEntity.ok(email);
+    }
+
+    @PostMapping(value = "/renameFolder/{userName}/{oldname}/{newname}")
+    public ResponseEntity<String> renameFolder(@PathVariable("userName") String name, @PathVariable("oldname") String oldname, @PathVariable("newname") String newname){
+        mailService.renamefolder(name,oldname,newname);
+        return ResponseEntity.ok(name);
     }
 
 }

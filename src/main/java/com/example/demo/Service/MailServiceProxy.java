@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,8 @@ public class MailServiceProxy implements IMailServiceProxy {
     public MailServiceProxy() {
 
     }
+
+
 
     @Override
     public void createUser(String email, String password, String name) {
@@ -161,25 +164,36 @@ public class MailServiceProxy implements IMailServiceProxy {
 
 
     @Override
-    public void renamefolder(User user, String oldname, String newname) {
-        List<String> foldernames = getUserFolders(user.getEmail());
+    public void renamefolder(String userName, String oldname, String newname) {
+        User u = getUser(userName);
+        List<String> foldernames = getUserFolders(u.getEmail());
         for (String name : foldernames) {
             if (name.equals(newname)) {
                 System.out.println("already exist");
                 return;
             }
         }
-        mailService.renamefolder(user, oldname, newname);
+        mailService.renamefolder(userName, oldname, newname);
 
 
     }
 
     @Override
-    public void deletefolder(User user, String foldername) {
-        mailService.deletefolder(user, foldername);
-
+    public void deletefolder(String userName, String foldername) {
+        User u = getUser(userName);
+        ArrayList<Folder> folders = u.getUserFolders();
+        for(Folder f : folders) {
+            if(f.getName().equals(foldername)) {
+                System.out.println("folder name is: "+ f.getName());
+                HashMap<Integer,String> ids = f.getFolderMailIds();
+                for(int i : ids.keySet()) {
+                    System.out.println("mail id is: "+i);
+                    moveEmail(userName, i, foldername, "Trash");
+                }
+            }
+        }
+        mailService.deletefolder(userName, foldername);
     }
-
     @Override
     public void createDirectoriesIfNeeded(String filePath) {
         mailService.createDirectoriesIfNeeded(filePath);
@@ -355,5 +369,35 @@ public class MailServiceProxy implements IMailServiceProxy {
             }
         }
         mailService.addContacts(contact, email);
+    }
+
+    public Boolean deleteContact(String name, String email){
+        User user = getUser(email);
+        ArrayList<Contact> usercontact = getContacts(email);
+        for (Contact c : usercontact) {
+            if (c.getName().equals(name)) {
+                usercontact.remove(c);
+                user.setUsercontact(usercontact);
+                setUser(user);
+                System.out.println("deleting done");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void editContact(Contact old , Contact neww , String email){
+        User user = getUser(email);
+        ArrayList<Contact> usercontact = getContacts(email);
+        for (Contact c : usercontact) {
+            if (c.getName().equals(old.getName())) {
+                usercontact.remove(c);
+                usercontact.add(neww);
+                user.setUsercontact(usercontact);
+                setUser(user);
+                System.out.println("editing done");
+                return;
+            }
+        }
     }
 }

@@ -99,6 +99,41 @@ public class MailService {
         return null;
     }
 
+    public Attachment getAttachment(int id) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(new File("data/attachments/" + id + ".json"),Attachment .class);
+        } catch (IOException e) {
+            System.out.println("Error fetching user: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public void setAttachment(Attachment attachment) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            createDirectoriesIfNeeded("data/attachments/" + attachment.getId() + ".json");
+            mapper.writeValue(new File("data/users/" + attachment.getId() + ".json"), attachment);
+            writeData();
+        } catch (IOException e) {
+            System.out.println("Error saving user data: " + e.getMessage());
+        }
+    }
+
+    public void createAttachment(int mailId,String fileName,String fileType ,byte[] fileContent ) {
+        ObjectMapper mapper = new ObjectMapper();
+        Attachment attachment = new Attachment(fileName,fileType,fileContent);
+        try{
+            mapper.writeValue(new File("data/attachments/" + systemData.getNumberOfAttachments() + ".json"), attachment);
+            systemData.setNumberOfAttachments(systemData.getNumberOfAttachments() + 1);
+            writeData();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
     public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority, List<Attachment> attachments) {
         MailBuilder builder = new MailBuilder();
         builder.setSender(from);
@@ -151,6 +186,10 @@ public class MailService {
                     receiver.addReceivedMail(systemData.getNumberOfMails());
                     setUser(receiver);
                 }
+            }
+            assert attachments != null;
+            for(Attachment a : attachments){
+                createAttachment(systemData.getNumberOfMails(),a.getFileName(), a.getFileType(), a.getFileContent());
             }
 
             // Update system data and persist changes
@@ -217,15 +256,16 @@ public class MailService {
     }
 
 
-    public void renamefolder(User user, String oldname, String newname) {
-        user.renameFolder(oldname, newname);
-        setUser(user);
-        System.out.println("name before :oldnme   name after: newname ");
+    public void renamefolder(String userName, String oldname, String newname) {
+        User u = getUser(userName);
+        u.renameFolder(oldname, newname);
+        setUser(u);
     }
 
-    public void deletefolder(User user, String foldername) {
-        user.deleteFolder(foldername);
-        setUser(user);
+    public void deletefolder(String userName, String foldername) {
+        User u = getUser(userName);
+        u.deleteFolder(foldername);
+        setUser(u);
     }
 
 
@@ -421,9 +461,6 @@ public class MailService {
             }
         }
 
-
-
-
         writeData();
     }
 
@@ -444,23 +481,34 @@ public class MailService {
 
 
 
-
 }
 class TestMailService {
     public static void main(String[] args) {
-        MailServiceProxy mailServiceProxy = new MailServiceProxy();
-        mailServiceProxy.createUser("k.com","xx","xx");
-        mailServiceProxy.createUser("w.com","xx","xx");
+        MailService mailService = new MailService();
 
-        ArrayList<String> recipients = new ArrayList<>();
-        recipients.add("k.com");
-        //  mailServiceProxy.addNewFolder(mailServiceProxy.getUser("k.com"),"newfolder");
-        //  mailServiceProxy.moveEmail("k.com",93,"inbox","newfolder");
-        ArrayList<String> emails = new ArrayList<>();
-        emails.add("shosho.com");
-        Contact c =new Contact(emails,"SHAHD");
 
-        mailServiceProxy.addContacts(c,"k.com");
+        int mailId = 1;
+        String fileName = "example.txt";
+        String fileType = "text/plain";
+        byte[] fileContent = "This is an example content.".getBytes();
+
+        Attachment a = new Attachment(fileName, fileType, fileContent);
+        ArrayList<Attachment> attachments = new ArrayList<>();
+        attachments.add(a);
+
+        ArrayList<String> to = new ArrayList<>();
+        to.add("w@w.com");
+        mailService.createEmail("k@w.com",to,"aa","",2,attachments);
+
+//        ArrayList<String> recipients = new ArrayList<>();
+//        recipients.add("k.com");
+//        //  mailServiceProxy.addNewFolder(mailServiceProxy.getUser("k.com"),"newfolder");
+//        //  mailServiceProxy.moveEmail("k.com",93,"inbox","newfolder");
+//        ArrayList<String> emails = new ArrayList<>();
+//        emails.add("shosho.com");
+//        Contact c =new Contact(emails,"SHAHD");
+//
+//        mailServiceProxy.addContacts(c,"k.com");
 
         // mailServiceProxy.createEmail("w.com",recipients,"hello","welcome to wonder land",2,null);
 

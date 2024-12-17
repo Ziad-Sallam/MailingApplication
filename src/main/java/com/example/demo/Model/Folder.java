@@ -46,4 +46,8 @@ public class Folder {
         folderMailIds.remove((Integer) mailId);
     }
 
+    public void setFolderMailIds(HashMap<Integer, String> folderMailIds) {
+        this.folderMailIds = folderMailIds;
+    }
+
 }

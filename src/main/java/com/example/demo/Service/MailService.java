@@ -481,143 +481,149 @@ public class MailService {
 
 
 
+
+    public List<Mail> sortedAndFiteredpage(String useremail, int page, String foldername, String strategy, boolean isFiltered, String filterType, String filterValue) {
+
+        User user1 = getUser(useremail);
+        if (user1 == null) {
+            System.out.println("User not found: " + user1.getEmail());
+            return Collections.emptyList();
+        }
+
+        Folder folder = getFolder(user1, foldername);
+        if (folder == null) {
+            System.out.println("Folder not found: " + foldername);
+            return Collections.emptyList();
+        }
+
+        SortStrategy sortStrategy;
+
+        switch (strategy.toLowerCase()) {
+            case "sender":
+                sortStrategy = new SortBySender();
+                break;
+            case "subject":
+                sortStrategy = new SortBySubject();
+                break;
+            case "importance":
+                sortStrategy = new SortByPriority();
+                break;
+            case "body":
+                sortStrategy = new SortByBody();
+                break;
+            default:
+                sortStrategy = new SortByDate();
+                break;
+        }
+
+
+        sortStrategy.sort(folder);
+
+
+        List<Mail> pagemails = getMailsFromFolder(folder);
+
+        IMailFilter filter = null;
+        if (isFiltered) {
+            switch (filterType.toLowerCase()) {
+                case "sender":
+                    filter = new FilterBySender(filterValue);
+                    break;
+                case "subject":
+                    filter = new FilterBySubject(filterValue);
+                    break;
+                default:
+                    System.out.println("Unknown filter type: " + filterType);
+            }
+
+            if (filter != null) {
+                pagemails = filter.applyFilter(pagemails);
+            }
+        }
+
+
+
+
+        int start = (page - 1) * 2;
+        int end = Math.min(start + 2, pagemails.size());
+
+        if(start>pagemails.size()||end>pagemails.size()){
+//            List<Mail> paginateds=new ArrayList<>();
+
+            return Collections.emptyList();
+
+        }
+        List<Mail> paginatedMails = pagemails.subList(start, end);
+
+        return paginatedMails;
+    }
+
+
+
+
 }
 class TestMailService {
     public static void main(String[] args) {
         MailService mailService = new MailService();
 
 
-        int mailId = 1;
-        String fileName = "example.txt";
-        String fileType = "text/plain";
-        byte[] fileContent = "This is an example content.".getBytes();
-
-        Attachment a = new Attachment(fileName, fileType, fileContent);
-        ArrayList<Attachment> attachments = new ArrayList<>();
-        attachments.add(a);
-
-        ArrayList<String> to = new ArrayList<>();
-        to.add("w@w.com");
-        mailService.createEmail("k@w.com",to,"aa","",2,attachments);
-
-//        ArrayList<String> recipients = new ArrayList<>();
-//        recipients.add("k.com");
-//        //  mailServiceProxy.addNewFolder(mailServiceProxy.getUser("k.com"),"newfolder");
-//        //  mailServiceProxy.moveEmail("k.com",93,"inbox","newfolder");
-//        ArrayList<String> emails = new ArrayList<>();
-//        emails.add("shosho.com");
-//        Contact c =new Contact(emails,"SHAHD");
-//
-//        mailServiceProxy.addContacts(c,"k.com");
-
-        // mailServiceProxy.createEmail("w.com",recipients,"hello","welcome to wonder land",2,null);
-
-//mailService.moveToTrash("k.com",91);
-//mailService.cleanOldMails("k.com");
+//        mailService.createUser("testUser@example.com", "password123", "Test User");
+//        mailService.createUser("recipient1@example.com", "password123", "Test User");
+//        mailService.createUser("recipient2@example.com", "password123", "Test User");
 
 
-
-//        mailService.createUser("u@e.com", "password123", "User One");
-//        mailService.createUser("z@pe.com", "password123", "User One");
-//        mailService.createUser("a@ae.com", "password123", "User One");
-//        //mailService.createUser("user60@example.com", "password456", "User Two");
-//
-//
-//        ArrayList<String> recipients = new ArrayList<>();
-//        recipients.add("user550@example.com");
-//        recipients.add("user551@example.com");
-//
-//
-//
-//      mailService.createEmail("user552@example.com", recipients, "caroline", "hello!", 3);
-        // mailService.createEmail("user50@example.com", recipients, "shosho", "Don't forget our meeting tomorrow!", 3);
-
-        //  mailService.createEmail("user50@example.com", recipients, "mommon", "Don't forget our meeting tomorrow!", 3);
+        User testUser = mailService.getUser("testUser@example.com");
+        if (testUser == null) {
+            System.out.println("Test user creation failed.");
+            return;
+        }
 
 
-//        System.out.println("\nInbox for user60@example.com:");
-        // User user2 = mailService.getUser("user60@example.com");
-//        if (user2 != null) {
-//            Folder inbox = user2.getUserFolders().stream()
-//                    .filter(folder -> folder.getName().equalsIgnoreCase("Inbox"))
-//                    .findFirst()
-//                    .orElse(null);
-//
-//            if (inbox != null) {
-//                inbox.getFolderMailIds().forEach(mailId -> {
-//                    Mail mail = mailService.getEmail(mailId);
-//                    if (mail != null) {
-//                        System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject());
-//                    }
-//                });
-//            } else {
-//                System.out.println("Inbox not found.");
+        ArrayList<String> recipients = new ArrayList<>();
+        recipients.add("recipient1@example.com");
+        recipients.add("recipient2@example.com");
+List<Attachment> no =new ArrayList<>();
+    //  mailService.createEmail("testUser@example.com", recipients, "Subject A", "Body A", 1, no);
+     // mailService.createEmail("testUser@example.com", recipients, "Subject B", "Body B", 3,no);
+//        mailService.createEmail("testUser@example.com", recipients, "Subject C", "Body C", 2,no);
+//        mailService.createEmail("testUser@example.com", recipients, "Subject D", "Body D", 5, no);
+//        mailService.createEmail("testUser@example.com", recipients, "Subject E", "Body E", 5, no);
+//        mailService.createEmail("testUser@example.com", recipients, "Subject F", "Body F", 1, no);
+
+
+        // Step 3: Test Sorted and Filtered Pagination
+        int page = 4;
+        String folderName = "Inbox";
+        String sortStrategy = "subject"; // Sorting by sender
+        boolean isFiltered = true;
+        String filterType = "subject"; // Filtering by subject
+        String filterValue = "Subject A"; // Looking for "Subject A"
+User user2=mailService.getUser("recipient2@example.com");
+System.out.println(user2.getEmail());
+        List<Mail> result = mailService.sortedAndFiteredpage("recipient2@example.com", page, folderName, sortStrategy, isFiltered, filterType, filterValue);
+        System.out.println(result.isEmpty());
+        // Step 4: Display Results
+        System.out.println("\nTest Results for Sorted and Filtered Pagination:");
+        for (Mail mail : result) {
+            System.out.println("here");
+            System.out.println("Mail ID: " + mail.getId() + ", Sender: " + mail.getSender() + ", Subject: " + mail.getSubject() + ", Priority: " + mail.getPriority());
+        }
+//        List<Mail> mails = mailService.getMailsFromFolder("recipient2@example.com", "Inbox");
+//        for (Mail mail : mails) {
+//            // Retrieve the full mail object using its ID
+//            Mail fullMail = mailService.getEmail(mail.getId());
+//            if (fullMail != null) {
+//                System.out.println("Mail ID: " + fullMail.getId() +
+//                        ", Sender: " + fullMail.getSender() +
+//                        ", Subject: " + fullMail.getSubject() +
+//                        ", Priority: " + fullMail.getPriority());
 //            }
 //        }
-
-
-        //System.out.println("\nMoving mail to Trash for user2@example.com...");
-        // mailService.moveToTrash("user20@example.com", 30);
-
-        // Step 6: Display user2's Trash folder
-        // System.out.println("\nTrash for user60@example.com:");
-//        if (user2 != null) {
-//            Folder trash = user2.getUserFolders().stream()
-//                    .filter(folder -> folder.getName().equalsIgnoreCase("Trash"))
-//                    .findFirst()
-//                    .orElse(null);
-//
-//            if (trash != null) {
-//                trash.getFolderMailIds().forEach(mailId -> {
-//                    Mail mail = mailService.getEmail(mailId);
-//                    if (mail != null) {
-//                        System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject());
-//                    }
-//                });
-//            } else {
-//                System.out.println("Trash folder not found.");
-//            }
+//        // Step 5: Additional Test Cases
+//        System.out.println("\nTesting Pagination without Filtering:");
+//        isFiltered = false;
+//        result = mailService.sortedAndFiteredpage(testUser, page, folderName, sortStrategy, isFiltered, filterType, filterValue);
+//        for (Mail mail : result) {
+//            System.out.println("Mail ID: " + mail.getId() + ", Sender: " + mail.getSender() + ", Subject: " + mail.getSubject() + ", Priority: " + mail.getPriority());
 //        }
-//
-//
-//        System.out.println("\nSent folder for user100@example.com:");
-//        User user1 = mailService.getUser("user50@example.com");
-//        if (user1 != null) {
-//            Folder sent = user1.getUserFolders().stream()
-//                    .filter(folder -> folder.getName().equalsIgnoreCase("Sent"))
-//                    .findFirst()
-//                    .orElse(null);
-//
-//            if (sent != null) {
-//                sent.getFolderMailIds().forEach(mailId -> {
-//                    Mail mail = mailService.getEmail(mailId);
-//                    if (mail != null) {
-//                        System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject());
-//                    }
-//                });
-//            } else {
-//                System.out.println("Sent folder not found.");
-//            }
-//        }
-//
-
-        //mailService.addNewFolder(user1,"new");
-        // mailService.renamefolder(user1,"new","updatedname");
-        //mailService.deletefolder(user1,"updatedname");
-        // Folder sorted= mailService.sortFolder(user2,"inbox","subject");
-//        List<Mail> filteredMails = mailService.filterFolderMails(user2, "Inbox", "sender", "user50@example.com");
-//
-//        for (Mail mail : filteredMails) {
-//            System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject() + ", Sender: " + mail.getSender() + ", Date: " + mail.getDateSent() + ", Priority: " + mail.getPriority());
-//        }
-
-        // System.out.println("\nSorted Folder: " + sorted.getName());
-//        sorted.getFolderMailIds().forEach(mailId -> {
-//            Mail mail = mailService.getEmail(mailId);
-//            if (mail != null) {
-//                System.out.println("Mail ID: " + mail.getId() + ", Subject: " + mail.getSubject() + ", Sender: " + mail.getSender() + ", Date: " + mail.getDateSent() + ", Priority: " + mail.getPriority());
-//            }
-//        });
-
     }
 }

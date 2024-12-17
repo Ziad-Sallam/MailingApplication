@@ -30,4 +30,7 @@ public interface IMailServiceProxy {
     public void addContacts(Contact contact, String email);
     public void renamefolder(String userName, String oldname, String newname);
     public void deletefolder(String userName, String foldername);
+    public int numberofpages(String user ,String foldername);
+    public List<Mail> getMailsFromFolder(Folder folder);
+    public List<Mail> sortedAndFiteredpage (String user,int page,String foldername,String strategy,boolean isfiltered,String filterType, String filterValue);
 }

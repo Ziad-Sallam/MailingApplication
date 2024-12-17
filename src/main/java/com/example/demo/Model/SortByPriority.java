@@ -2,28 +2,28 @@ package com.example.demo.Model;
 
 import com.example.demo.Service.MailService;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 
-public class SortByPriority implements SortStrategy, Comparator<Mail> {
+public class SortByPriority implements SortStrategy {
     MailService mailService = new MailService();
 
     @Override
-    public int compare(Mail mail1, Mail mail2) {
-        return Integer.compare(mail1.getPriority(), mail2.getPriority());
-    }
-
-    @Override
     public void sort(Folder folder) {
-        ArrayList<Integer> list = new ArrayList<>();
-        for(Map.Entry<Integer,String> s : folder.getFolderMailIds().entrySet()){
-            list.add(s.getKey());
-        }
-        list.sort((id1, id2) -> {
+        List<Integer> mailIds = new ArrayList<>(folder.getFolderMailIds().keySet());
+        mailIds.sort((id1, id2) -> {
             Mail mail1 = mailService.getEmail(id1);
             Mail mail2 = mailService.getEmail(id2);
-            return compare(mail1, mail2);
+            if (mail1 == null || mail2 == null) {
+                return 0;
+            }
+            return Integer.compare(mail2.getPriority(), mail1.getPriority());
         });
+
+        LinkedHashMap<Integer, String> sortedFolderMailIds = new LinkedHashMap<>();
+        for (Integer mailId : mailIds) {
+            sortedFolderMailIds.put(mailId, folder.getFolderMailIds().get(mailId));
+        }
+        folder.setFolderMailIds(sortedFolderMailIds);
+        System.out.println("sooooooort");
     }
 }

@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.lang.Math.floor;
 
 @Service
 
@@ -213,6 +212,23 @@ public class MailServiceProxy implements IMailServiceProxy {
     }
 
     @Override
+    public List<Mail> getMailsFromFolder(Folder folder) {
+        List<Mail> mails = new ArrayList<>();
+        for (Map.Entry<Integer, String> m : folder.getFolderMailIds().entrySet()) {
+            Mail mail = getEmail(m.getKey());
+            mails.add(mail);
+        }
+
+//        folder.getFolderMailIds().forEach(mailID -> {
+//            Mail mail = getEmail((Integer) mailId);
+//            if (mail != null) {
+//                mails.add(mail);
+//            }
+//        });
+        return mails;
+    }
+
+    @Override
     public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue) {
         User user1 = getUser(user.getEmail());
         if (user1 != null) {
@@ -400,4 +416,87 @@ public class MailServiceProxy implements IMailServiceProxy {
             }
         }
     }
+
+
+    public int numberofpages(String useremail,String foldername){
+
+        List<Mail> folder=getMailsFromFolder(useremail,foldername);
+        return (int)floor(folder.size()/2);
+
+    }
+
+
+    public List<Mail> sortedAndFiteredpage(String useremail, int page, String foldername, String strategy, boolean isFiltered, String filterType, String filterValue) {
+
+        User user1 = getUser(useremail);
+        if (user1 == null) {
+            System.out.println("User not found: " + user1.getEmail());
+            return Collections.emptyList();
+        }
+
+        Folder folder = getFolder(user1, foldername);
+        if (folder == null) {
+            System.out.println("Folder not found: " + foldername);
+            return Collections.emptyList();
+        }
+
+        SortStrategy sortStrategy;
+
+        switch (strategy.toLowerCase()) {
+            case "sender":
+                sortStrategy = new SortBySender();
+                break;
+            case "subject":
+                sortStrategy = new SortBySubject();
+                break;
+            case "importance":
+                sortStrategy = new SortByPriority();
+                break;
+            case "body":
+                sortStrategy = new SortByBody();
+                break;
+            default:
+                sortStrategy = new SortByDate();
+                break;
+        }
+
+
+        sortStrategy.sort(folder);
+
+
+        List<Mail> pagemails = getMailsFromFolder(folder);
+
+        IMailFilter filter = null;
+        if (isFiltered) {
+            switch (filterType.toLowerCase()) {
+                case "sender":
+                    filter = new FilterBySender(filterValue);
+                    break;
+                case "subject":
+                    filter = new FilterBySubject(filterValue);
+                    break;
+                default:
+                    System.out.println("Unknown filter type: " + filterType);
+            }
+
+            if (filter != null) {
+                pagemails = filter.applyFilter(pagemails);
+            }
+        }
+
+        int start = (page - 1) * 2;
+        int end = Math.min(start + 2, pagemails.size());
+
+        if(start>pagemails.size()||end>pagemails.size()){
+//            List<Mail> paginateds=new ArrayList<>();
+
+            return Collections.emptyList();
+
+        }
+        List<Mail> paginatedMails = pagemails.subList(start, end);
+
+        return paginatedMails;
+    }
+
+
 }

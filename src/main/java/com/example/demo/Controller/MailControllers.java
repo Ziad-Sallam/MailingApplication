@@ -162,4 +162,20 @@ public class MailControllers {
         return ResponseEntity.ok(name);
     }
 
+    @GetMapping(value = "/numberPages/{userName}", params = {"foldername"})
+    public ResponseEntity<Integer> numberPages(@PathVariable("userName") String name,@Param("foldername") String foldername) {
+        int num =mailService.numberofpages(name , foldername);
+        return ResponseEntity.ok(num);
+    }
+    @GetMapping(value = "/emailPages/{userName}", params = {"page","foldername","strategy","isFiltered","filterType","filterValue"})
+    public ResponseEntity<List<Mail>> emailPages(@PathVariable("userName") String name,
+                                                 @Param("page") int page,
+                                                 @Param("foldername") String foldername,
+                                                 @Param("strategy") String strategy,
+                                                 @Param("isFiltered") boolean isFiltered,
+                                                 @Param("filterType") String filterType,
+                                                 @Param("filterValue") String filterValue) {
+        List<Mail> m =mailService.sortedAndFiteredpage(name, page, foldername,strategy,isFiltered,filterType,filterValue);
+        return ResponseEntity.ok(m);
+    }
 }

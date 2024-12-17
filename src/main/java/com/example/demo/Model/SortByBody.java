@@ -1,5 +1,4 @@
 package com.example.demo.Model;
-
 import com.example.demo.Service.MailService;
 
 import java.util.ArrayList;

@@ -11,10 +11,11 @@ const mail = {
     subject: PropTypes.string,
     date : PropTypes.string,
     id : PropTypes.number,
+
 }
 
 MailView.propTypes = {
-    mail : PropTypes.oneOfType(mail)
+    mail : PropTypes.arrayOf(mail)
 
 }
 function MailView() {
@@ -36,7 +37,8 @@ function MailView() {
             subject: "fko[ss",
             date : "23/10/2024",
             id : 3,
-            priority : 1
+            priority : 1,
+            attachments : []
     })
 
     const [selectedFolder,setSelectedFolder] = useState("Inbox")
@@ -52,8 +54,9 @@ function MailView() {
 
             try {
                 const data = await axios.get("http://localhost:8080/api/users/getEmail", { params: param });
-                console.log(data.data.body);
+
                 setMail(data.data);
+                console.log(mail)
             } catch (error) {
                 console.error('Error fetching emails:', error);
             }
@@ -65,6 +68,7 @@ function MailView() {
                 const response = await axios.get("http://localhost:8080/api/users/getFolders", { params: paramf });
                 let x = response.data.filter((item) => ((item !== "Trash") && (item !== "Sent") && (item !== params.folderName)))
                 setFolders(x);
+                
                 console.log(response.data)
             } catch (error) {
                 console.error('Error fetching folders:', error);
@@ -72,6 +76,7 @@ function MailView() {
         }
 
         fetchMails();
+        console.log(folders);
     }, [params.mailID, params.user, params.folderName]);
 
     async function moveFolder(e) {
@@ -98,7 +103,7 @@ function MailView() {
 
     return (
         <div className="mail-view">
-                <table className={"table table-striped"}>
+                <table className={"table table-striped"} >
                     <tbody>
                     <tr>
                         <td><label htmlFor="sender">From: </label></td>
@@ -139,6 +144,36 @@ function MailView() {
                         onClick={moveFolder}
 
                 ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>
+            </div>
+
+            <div>
+                <h6>Attachments</h6>
+                {mail.attachments.map((attachment, index) => {
+                    // Decode the Base64 string into a byte array
+                    const byteCharacters = atob(attachment.fileContent);
+                    const byteNumbers = new Array(byteCharacters.length);
+
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+
+                    const byteArray = new Uint8Array(byteNumbers);
+
+                    // Create a Blob from the byte array
+                    const blob = new Blob([byteArray], { type: attachment.fileType });
+
+                    return (
+                        <a
+                            key={index}
+                            href={URL.createObjectURL(blob)}
+                            download={attachment.fileName}
+                        >
+                            {attachment.fileName}
+                        </a>
+                    );
+                })}
+
+
             </div>
 
 

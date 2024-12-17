@@ -15,6 +15,7 @@ function MailBox() {
     const [body, setBody] = useState('');
     const [subject, setSubject] = useState('');
     const [priority, setPriority] = useState(2);
+    const [attachment, setAttachment] = useState(null);
 
     // Generate a unique ID if not provided in the URL params
     const id = useRef(urlParams.id || uuidv4()).current;
@@ -66,6 +67,7 @@ function MailBox() {
             subject: subject,
             body: body,
             priority: priority,
+            attachments : [attachment]
         };
 
         try {
@@ -75,8 +77,9 @@ function MailBox() {
         }
     };
 
-    const sendMail = async () => {
+    const sendMail = async (e) => {
 
+        e.preventDefault()
 
         const param = {
             sender: urlParams.user,
@@ -84,9 +87,11 @@ function MailBox() {
             subject: subject,
             body: body,
             priority: priority,
+            attachments : [attachment]
 
         };
-
+            console.log("heeree")
+        console.log(param)
         try {
             await axios.post(`http://localhost:8080/api/users/deleteDraft/${id}/${urlParams.user}`);
             await axios.post('http://localhost:8080/api/users/send', param);
@@ -95,9 +100,39 @@ function MailBox() {
         }
     };
 
+    function test(e){
+
+        console.log("hello");
+
+        /////////////////////////////////////
+
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        // File content as an ArrayBuffer
+                        const arrayBuffer = reader.result;
+                        const byteArray = new Uint8Array(arrayBuffer);
+                        const attach = {
+                            id : 12,
+                            fileName: e.target.files[0].name,
+                            fileType: e.target.files[0].type,
+                            fileContent :Array.from(byteArray)
+                        }
+                        setAttachment(attach);
+                        console.log(attachment);
+                    };
+                    // Read file as ArrayBuffer
+                    reader.readAsArrayBuffer(file);
+                }
+
+
+        ////////////////////////////////////
+    }
+
     return (
         <div className="d-flex flex-column mb-3 mail-box">
-            <form className="form-control" onSubmit={sendMail}>
+            <form className="form-control" >
                 <table className="table table-striped">
                     <tbody>
                     <tr>
@@ -151,7 +186,7 @@ function MailBox() {
                     </tr>
                     <tr>
                         <td><label htmlFor="attachment">Attachment: </label></td>
-                        <td><input className="input input-file" type="file" /></td>
+                        <td><input className="input input-file" type="file" onChange={test}/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -159,6 +194,7 @@ function MailBox() {
                     className="btn btn-primary btn-lg btn-block position-relative"
                     style={{ marginLeft: '87%', marginRight: '20px', marginTop: '-9px', marginBottom: '10px' }}
                     type="submit"
+                    onClick={sendMail}
                     disabled={!to.trim() || !body.trim() || !subject.trim()}
                 >
                     Submit

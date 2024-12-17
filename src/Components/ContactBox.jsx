@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import AddContact from "./AddContact.jsx";
+import {FaPlus} from "react-icons/fa";
 
 
 function ContactBox() {
@@ -58,11 +59,38 @@ function ContactBox() {
         fetchMails();
     }, [params.user]);
 
+    function editClicked(e){
+        const i = e.target.value
+        console.log(editFlag)
+        setEditFlag(!editFlag)
+        console.log(editFlag)
+        console.log(i)
+        setContactToEdit(() => contact.filter((c) => c.name === i))
+        console.log(contactToEdit)
+
+    }
+
+    function editedContact(i){
+        return <AddContact name={i.name} email={i.userEmails} edit={true} onClick={() => setEditFlag(false)}/>
+
+    }
+
+    const [contactToEdit,setContactToEdit] = useState({})
+
+    const [editFlag, setEditFlag] = useState( false);
 
     return (
         <div className="Contact-box">
-          
-            <table className="table table-striped list-box-table table-hover">
+            <div className={"list-title"}>
+
+                <div style={{display: "flex"}}>
+                    <h1 style={{fontSize: "3rem", fontWeight: "normal"}}>Contacts</h1>
+                </div>
+
+            </div>
+            <hr/>
+
+            <table className="table table-striped list-box-table table-hover contact-table">
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -70,25 +98,39 @@ function ContactBox() {
                 </tr>
                 </thead>
                 <tbody>
-                {contact.map((c,index) => (
-                    <tr key={index} >
+                {contact.map((c, index) => (
+
+                    <tr key={index}>
+
                         <td>{c.name}</td>
 
                         <td>{c.userEmails}</td>
+                        <td className={"table-btns"}>
+                            <button
+                                className={"btn "}
+                                onClick={() => navigate("/" + params.user + "/sendContact" + "/" + c.userEmails)}
+                            >
+                                <FaPlus/>
+                            </button>
+                            <button className={"btn"} value={c.name} onClick={DeleteContact}>delete</button>
+                            <button className={index + " btn "} value={c.name} onClick={editClicked}>Edit</button>
 
-                        <button onClick={() => navigate("/" + params.user + "/sendContact"+"/"+ c.userEmails)}>+</button>
-                        <button value={c.name} onClick={DeleteContact}>delete</button>
+                        </td>
+                        <td>{editFlag && editedContact(contactToEdit[0])}</td>
                     </tr>
+
                 ))}
                 </tbody>
             </table>
-            <button  className="btn btn-primary btn-lg btn-block position-relative"
-                     style={{ marginLeft: '85%', marginTop: '-2px', fontSize:'1.1rem'}}
-                     onClick={() => setContactBox(!contactBox)}
+
+
+            <button className="btn btn-primary btn-lg btn-block position-relative"
+                    style={{marginLeft: '85%', marginTop: '-2px', fontSize: '1.1rem'}}
+                    onClick={() => setContactBox(!contactBox)}
             >
-            Add Contact
+                Add Contact
             </button>
-            {contactBox && <AddContact/>}
+            {contactBox && <AddContact name={""} email={[]} edit={false} onClick={() => setContactBox(false)}/>}
         </div>
     );
 }

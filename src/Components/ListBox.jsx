@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { FiSearch } from "react-icons/fi";
+import {MdOutlineEdit} from "react-icons/md";
+import {RiDeleteBin6Line} from "react-icons/ri";
 
 const mail = {
     sender: PropTypes.string,
@@ -21,6 +23,7 @@ ListBox.propTypes = {
 function ListBox() {
     const navigate = useNavigate();
     const params = useParams();
+    const [folderName,setFolderName] = useState(params.folderName);
 
     const [mails, setMails] = useState([
         {
@@ -28,7 +31,7 @@ function ListBox() {
             receiver: ["sccs"],
             body: "hello",
             subject: "zz",
-            date: "22/10/2024",
+            dateSent: "22/10/2024",
             id: 2,
             priority: 0
         },
@@ -37,7 +40,7 @@ function ListBox() {
             receiver: ["merer"],
             body: "zello World",
             subject: "aa",
-            date: "23/10/2024",
+            dateSent: "23/10/2024",
             id: 3,
             priority: 1,
             temp: ""
@@ -115,13 +118,56 @@ function ListBox() {
 
     function search(e) {
         console.log(allMails.current);
-        const searched = [...allMails.current].filter(mail => mail.subject.toLowerCase().includes(e.target.value.toLowerCase()) || mail.sender.toLowerCase().includes(e.target.value.toLowerCase()));
+        const searched = [...allMails.current].filter(mail => (mail.subject.toLowerCase().includes(e.target.value.toLowerCase()) || mail.sender.toLowerCase().includes(e.target.value.toLowerCase()) ||mail.body.toLowerCase().includes(e.target.value.toLowerCase())));
         console.log(searched)
         setMails(searched);
     }
 
+    async function rename(){
+        await axios.post(`http://localhost:8080/api/users/renameFolder/${params.user}/${params.folderName}/${folderName}`)
+
+        navigate("/" + params.user + "/folder/" + folderName);
+
+
+    }
+    async function deleteFolder(){
+        await axios.post(`http://localhost:8080/api/users/deleteFolder/${params.folderName}/${params.user}`)
+        navigate("/" + params.user + "/folder/inbox");
+        window.location.reload();
+
+    }
+    function enableEdit(){
+        return(<div className={"list-title"}>
+
+            <div style={{display: "flex"}}><input className={"folder-name"} type={"text"} value={folderName}
+                                                  onChange={(e) => setFolderName(e.target.value)}/>
+                <button className={"btn btn-lg"} style={{marginLeft: "20px"}} onClick={rename}><MdOutlineEdit
+                    style={{fontSize: "2.5rem"}}/></button>
+            </div>
+
+
+            <button className={"btn btn-lg"} onClick={deleteFolder}><RiDeleteBin6Line style={{fontSize: "2.5rem"}}/>
+            </button>
+
+        </div>)
+    }
+    function disableEdit() {
+        return (<div className={"list-title"}>
+
+            <div style={{display: "flex"}}>
+                <h1 style={{fontSize: "3rem", fontWeight : "normal"}}>{folderName}</h1>
+            </div>
+
+        </div>)
+
+    }
+
     return (
         <div className="list-box">
+
+            {(folderName ==="Inbox" || folderName === "Sent" || folderName === "Trash") ? disableEdit() : enableEdit()}
+
+            <hr/>
             <label>{"Sort by:  "}</label>
             <select id="sort-dropdown" onChange={sort}>
                 <option value="date">Date</option>
@@ -130,8 +176,8 @@ function ListBox() {
                 <option value="importance">Importance</option>
                 <option value="from">From</option>
             </select>
-            <label style={{marginLeft: "10%"}}><FiSearch style={{ fontSize: "1.5rem" }} /></label>
-            <input className={"search-input"} type={"text"} placeholder={"search..."} onChange={search}  />
+            <label style={{marginLeft: "10%"}}><FiSearch style={{fontSize: "1.5rem"}}/></label>
+            <input className={"search-input"} type={"text"} placeholder={"search..."} onChange={search}/>
             <table className="table table-striped list-box-table table-hover">
                 <thead>
                 <tr>
@@ -144,7 +190,7 @@ function ListBox() {
                 </thead>
                 <tbody>
                 {mails.map((mail, index) => (
-                    <tr key={index} >
+                    <tr key={index}>
                         <td><input type={"checkbox"}/></td>
                         <td onClick={() => {
                             navigate("/" + params.user + "/" + (params.folderName === "draft" ? "" : params.folderName + "/") + (mail.id === 0 ? ('draft/' + mail.temp) : mail.id));
@@ -152,7 +198,7 @@ function ListBox() {
                         <td onClick={() => {
                             navigate("/" + params.user + "/" + (params.folderName === "draft" ? "" : params.folderName + "/") + (mail.id === 0 ? ('draft/' + mail.temp) : mail.id));
                         }}>{mail.subject}</td>
-                        <td>{mail.date}</td>
+                        <td>{mail.dateSent}</td>
                         <td>{mail.priority}</td>
                     </tr>
                 ))}

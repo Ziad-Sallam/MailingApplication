@@ -4,9 +4,10 @@ import { CiTrash } from "react-icons/ci";
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {FaFolder} from "react-icons/fa";
+import {FaFolder, FaRegFolder} from "react-icons/fa";
 import {RiDraftFill, RiFolderAddLine} from "react-icons/ri";
 import AddFolder from "./AddFolder.jsx";
+import {TbLayoutNavbar} from "react-icons/tb";
 
 function SideBar() {
     const params = useParams();
@@ -31,42 +32,49 @@ function SideBar() {
     }, [params.user]);
 
     return (
-        <div className="side-bar">
-            <button className="btn" onClick={() => navigate("/" + params.user + "/send")}>
-                <MdEdit style={{fontSize: "1.7rem"}}/>
-                Compose
-            </button>
-            <button className="btn" onClick={() => navigate("/" + params.user + "/folder/draft")}>
-                <RiDraftFill style={{fontSize: "1.7rem"}}/>
-                Draft
-            </button>
-            {folders.map((folder, index) =>
+        <>
 
-                (
-                    <>
-                        <button className="btn" key={index} onClick={() => {
-                            navigate("/" + params.user + "/folder/" + folder);
-                        }}>
-                            {folder === "Trash" && <CiTrash style={{fontSize: "1.7rem"}}/>}
-                            {folder === "Inbox" && <MdInbox style={{fontSize: "1.7rem"}}/>}
-                            {folder === "Sent" && <IoIosSend style={{fontSize: "1.7rem"}}/>}
-                            {(folder !== "Trash" && folder !== "Inbox" && folder !== "Sent") && (
-                                <FaFolder style={{fontSize: "1.7rem"}}/>)}
-                            {folder}
+            <div className="side-bar">
 
-                        </button>
-                    </>)
-            )}
-            <button className="btn" onClick={() => navigate("/" + params.user + "/contact")}>
-                <MdContacts style={{fontSize: "1.7rem"}}/>
-                 Contacts
-            </button>
-            <button className="btn" onClick={() =>(setAddFolder(!addFolder))}>
-                <RiFolderAddLine style={{fontSize: "1.7rem"}}/>
-                 Add Folders
-            </button>
-            {addFolder && <AddFolder/>}
-        </div>
+                <button className="btn" onClick={() => navigate("/" + params.user + "/send")}>
+                    <MdEdit style={{fontSize: "1.7rem", marginRight: "10px"}}/>
+                    Compose
+                </button>
+                <button className="btn" onClick={() => navigate("/" + params.user + "/folder/draft")}>
+                    <RiDraftFill style={{fontSize: "1.7rem", marginRight: "10px"}}/>
+                    Draft
+                </button>
+                {folders.map((folder, index) =>
+
+                    (
+                        <>
+                            <button className="btn" key={index} onClick={() => {
+
+                                navigate("/" + params.user + "/folder/" + folder);
+                                window.location.reload();
+                            }}>
+                                {folder === "Trash" && <CiTrash style={{fontSize: "1.7rem", marginRight: "10px"}}/>}
+                                {folder === "Inbox" && <MdInbox style={{fontSize: "1.7rem", marginRight: "10px"}}/>}
+                                {folder === "Sent" && <IoIosSend style={{fontSize: "1.7rem", marginRight: "10px"}}/>}
+                                {(folder !== "Trash" && folder !== "Inbox" && folder !== "Sent") && (
+                                    <FaRegFolder style={{fontSize: "1.7rem", marginRight: "10px"}}/>)}
+                                {folder}
+
+                            </button>
+                        </>)
+                )}
+                <button className="btn" onClick={() => navigate("/" + params.user + "/contact")}>
+                    <MdContacts style={{fontSize: "1.7rem"}}/>
+                    Contacts
+                </button>
+                <button className="btn" onClick={() => (setAddFolder(!addFolder))}>
+                    <RiFolderAddLine style={{fontSize: "1.7rem"}}/>
+                    Add Folders
+                </button>
+                {addFolder && <AddFolder onClick={() => (setAddFolder(!addFolder))}/>}
+            </div>
+        </>
+
     );
 }
 

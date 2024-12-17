@@ -1,5 +1,40 @@
 .contact-container{
     position: fixed;
-    top: 400px;
-    background-color: black;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px;
+    padding-top: 50px;
+    border: 1px solid black;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000;
+
+}
+
+
+.contact-container *{
+    margin: 5px;
+}
+.contact-container .close{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+}
+.contact-container .close *{
+    margin: 0;
+}
+.contact-table{
+    padding-right: 10px;
+}
+.table-btns{
+
+    width: 18%;
 }

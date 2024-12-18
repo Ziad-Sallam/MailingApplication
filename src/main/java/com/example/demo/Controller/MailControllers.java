@@ -27,7 +27,8 @@ public class MailControllers {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        mailService.createUser(user.getEmail(), user.getPassword(), user.getName());
+        int x = mailService.createUser(user.getEmail(), user.getPassword(), user.getName());
+        if(x==-1) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(user);
     }
 
@@ -56,6 +57,7 @@ public class MailControllers {
     @PostMapping("/send")
     public ResponseEntity<Mail> send(@RequestBody  Mail mail) {
         Mail m =mailService.createEmail(mail.getSender(), new ArrayList<>(mail.getReceivers()) ,mail.getSubject(),mail.getBody(), mail.getPriority(),mail.getAttachments());
+        if(m==null) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(m);
     }
 
@@ -107,7 +109,8 @@ public class MailControllers {
     @PostMapping(value = "/addContact/{mail}")
     public ResponseEntity<Contact> addContact(@RequestBody Contact contact,@PathVariable("mail") String mail){
         System.out.println(contact.getName());
-        mailService.addContacts(contact,mail);
+        int x = mailService.addContacts(contact,mail);
+        if(x==-1) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(contact);
     }
 
@@ -120,8 +123,10 @@ public class MailControllers {
     @PostMapping(value = "/addFolder/{email}")
     public ResponseEntity<String> addFolder(@RequestBody String  folderName,@PathVariable("email") String email){
         folderName = folderName.replace("+"," ");
-        folderName = folderName.replace("="," ");
-        mailService.addFolder(folderName,email);
+        folderName = folderName.replace("=","");
+
+        int x = mailService.addFolder(folderName,email);
+        if(x==-1) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(folderName);
     }
 
@@ -145,8 +150,8 @@ public class MailControllers {
             Contact oldContact = contacts.get("oldContact");
             Contact newContact = contacts.get("newContact");
 
-            mailService.editContact(oldContact,newContact,user);
-
+            int x = mailService.editContact(oldContact,newContact,user);
+            if(x==-1) return ResponseEntity.status(403).build();
             return ResponseEntity.ok("Contact updated successfully");
         }
 
@@ -160,7 +165,8 @@ public class MailControllers {
 
     @PostMapping(value = "/renameFolder/{userName}/{oldname}/{newname}")
     public ResponseEntity<String> renameFolder(@PathVariable("userName") String name, @PathVariable("oldname") String oldname, @PathVariable("newname") String newname){
-        mailService.renamefolder(name,oldname,newname);
+        int x = mailService.renamefolder(name,oldname,newname);
+        if(x==-1) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(name);
     }
 

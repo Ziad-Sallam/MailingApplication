@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface IMailServiceProxy {
-    public void createUser(String email, String password, String name);
+    public int createUser(String email, String password, String name);
     public User getUser(String email);
     public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority, List<Attachment> attachments);
     public void moveEmail(String email, int mailId,String fromFolderName,String toFolderName);
     public void setUser(User user);
     public Mail getEmail(int id);
     public Folder getFolder(User user, String folderName);
-    public void addFolder(String folderName, String userName);
+    public int addFolder(String folderName, String userName);
 
     public void createDirectoriesIfNeeded(String filePath);
     //    public List<Mail> getMailsFromFolder(Folder folder);
@@ -27,8 +27,8 @@ public interface IMailServiceProxy {
     public boolean deleteDraft(String id, String email);
     //    public void cleanOldMails();
     public void writeData();
-    public void addContacts(Contact contact, String email);
-    public void renamefolder(String userName, String oldname, String newname);
+    public int addContacts(Contact contact, String email);
+    public int renamefolder(String userName, String oldname, String newname);
     public void deletefolder(String userName, String foldername);
     public int numberofpages(String user ,String foldername);
     public List<Mail> getMailsFromFolder(Folder folder);

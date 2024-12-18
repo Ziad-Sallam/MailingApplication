@@ -1,7 +1,5 @@
 package com.example.demo.Service;
 
-import com.example.demo.Service.*;
-import com.example.demo.Service.MailService;
 import com.example.demo.Model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,15 +30,16 @@ public class MailServiceProxy implements IMailServiceProxy {
 
 
     @Override
-    public void createUser(String email, String password, String name) {
+    public int createUser(String email, String password, String name) {
         ArrayList<String> temp = systemData.getUsers();
         System.out.println(temp);
         if (temp.contains(email)) {
             System.out.println("User already exists");
-            return;
+            return -1;
         } else {
             mailService.createUser(email, password, name);
         }
+        return 0;
     }
 
     @Override
@@ -61,7 +60,7 @@ public class MailServiceProxy implements IMailServiceProxy {
 
         for (String recipient : to) {
             if (users == null || !users.contains(recipient)) {
-//                System.out.println("Recipient " + recipient + " does not exist.");
+                System.out.println("Recipient " + recipient + " does not exist.");
                 return null;
             }
         }
@@ -148,31 +147,33 @@ public class MailServiceProxy implements IMailServiceProxy {
     }
 
     @Override
-    public void addFolder(String folderName, String userName) {
+    public int addFolder(String folderName, String userName) {
         User u = getUser(userName);
         ArrayList<Folder> f = u.getUserFolders();
         for (Folder name : f) {
             if (name.getName() == folderName) {
                 System.out.println("already exist");
-                return;
+                return -1;
             }
         }
         mailService.addFolder(folderName , userName);
+        return 0;
 
     }
 
 
     @Override
-    public void renamefolder(String userName, String oldname, String newname) {
+    public int renamefolder(String userName, String oldname, String newname) {
         User u = getUser(userName);
         List<String> foldernames = getUserFolders(u.getEmail());
         for (String name : foldernames) {
             if (name.equals(newname)) {
                 System.out.println("already exist");
-                return;
+                return -1;
             }
         }
         mailService.renamefolder(userName, oldname, newname);
+        return 0;
 
 
     }
@@ -375,16 +376,17 @@ public class MailServiceProxy implements IMailServiceProxy {
         return user.getUsercontact();
     }
 
-    public void addContacts(Contact contact, String email) {
+    public int addContacts(Contact contact, String email) {
         User user = getUser(email);
         List<Contact> usercontact = getContacts(email);
         for (Contact c : usercontact) {
             if (c.getName().equals(contact.getName())) {
                 System.out.println("contact already exists ");
-                return;
+                return -1;
             }
         }
         mailService.addContacts(contact, email);
+        return 0;
     }
 
     public Boolean deleteContact(String name, String email){
@@ -402,9 +404,16 @@ public class MailServiceProxy implements IMailServiceProxy {
         return false;
     }
 
-    public void editContact(Contact old , Contact neww , String email){
+    public int editContact(Contact old , Contact neww , String email){
         User user = getUser(email);
         ArrayList<Contact> usercontact = getContacts(email);
+        for (Contact c : usercontact) {
+            if (c.getName().equals(neww.getName())) {
+                System.out.println("contact already exists ");
+                return -1;
+            }
+        }
+
         for (Contact c : usercontact) {
             if (c.getName().equals(old.getName())) {
                 usercontact.remove(c);
@@ -412,9 +421,10 @@ public class MailServiceProxy implements IMailServiceProxy {
                 user.setUsercontact(usercontact);
                 setUser(user);
                 System.out.println("editing done");
-                return;
+                return 0;
             }
         }
+        return 0;
     }
 
 

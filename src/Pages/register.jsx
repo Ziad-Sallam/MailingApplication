@@ -6,6 +6,7 @@ import './login.css'
 import {useNavigate} from 'react-router-dom'
 import {useState} from "react";
 import axios from "axios";
+import ErrorMsg from "../Components/ErrorMsg.jsx";
 
 
 function LogIn() {
@@ -13,6 +14,8 @@ function LogIn() {
     const [password, setPassword] = useState('')
     const [passwordConfirm, setPasswordConfirm] = useState('')
     const [username, setUsername] = useState('')
+    const [errorMsg, setErrorMsg] = useState(false)
+    const [error,setError] = useState('')
 
     const navigate = useNavigate();
     function handlePasswordChange(e) {
@@ -34,6 +37,8 @@ function LogIn() {
         e.preventDefault();
         if (passwordConfirm !== password) {
             console.log("different passwords")
+            setErrorMsg(true)
+            setError("passwords do not match")
         }
         else {
             const new_ = {
@@ -41,9 +46,17 @@ function LogIn() {
                 name: username,
                 password: password,
             }
-            await axios.post('http://localhost:8080/api/users', new_);
-            console.log(email);
-            navigate('/'+ email + '/inbox');
+            try{
+                await axios.post('http://localhost:8080/api/users', new_);
+                console.log(email);
+                navigate('/'+ email + '/inbox');
+            }
+            catch (error){
+                console.log(error)
+                setErrorMsg(true)
+                setError("email already exists")
+            }
+
         }
     }
 
@@ -96,6 +109,7 @@ function LogIn() {
 
                 > Create Account
                 </button>
+                {errorMsg && (<ErrorMsg message={error} />)}
                 <a href={'/'}>have an account?</a>
                 <p className="mt-5 mb-3 text-muted">&copy; The programmers</p>
             </form>

@@ -6,11 +6,15 @@ import './login.css'
 import {useNavigate} from 'react-router-dom'
 import {useState} from "react";
 import axios from "axios";
+import ErrorMsg from "../Components/ErrorMsg.jsx";
 
 
 
 
 function LogIn() {
+
+    const [errorMsg, setErrorMsg] = useState(false)
+    const [error,setError] = useState('')
     function handleEntryChange(e) {
         if (e.target.id === "inputEmail"){
             setEmail(e.target.value)
@@ -44,6 +48,15 @@ function LogIn() {
             // Optionally navigate after successful login
             navigate('/' + user.email + '/inbox');
         } catch (error) {
+            setErrorMsg(true)
+            if(error.response.status === 404){
+
+                setError("Email not found");
+            }
+            else if (error.response.status === 400){
+                setError("Wrong Password");
+            }
+
             console.error('There was an error logging in:', error);
         }
     }
@@ -63,6 +76,7 @@ function LogIn() {
                 onChange={handleEntryChange}/>
 
                 <button className="btn btn-lg btn-primary btn-block col-12" type="submit">Sign in</button>
+                {errorMsg && <ErrorMsg message={error}/>}
                 <a href={'/register'}>Don&apos;t have an account.</a>
                 <p className="mt-5 mb-3 text-muted">&copy; The programmers</p>
             </form>

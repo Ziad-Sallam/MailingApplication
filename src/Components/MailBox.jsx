@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import ErrorMsg from "./ErrorMsg.jsx";
 
 MailBox.propTypes = {
     userEmail: PropTypes.string,
@@ -16,6 +17,8 @@ function MailBox() {
     const [subject, setSubject] = useState('');
     const [priority, setPriority] = useState(2);
     const [attachment, setAttachment] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(false)
+    const [error,setError] = useState('')
 
     // Generate a unique ID if not provided in the URL params
     const id = useRef(urlParams.id || uuidv4()).current;
@@ -114,9 +117,16 @@ function MailBox() {
         console.log(param)
         try {
             await axios.post(`http://localhost:8080/api/users/deleteDraft/${id}/${urlParams.user}`);
-            await axios.post('http://localhost:8080/api/users/send', param);
         } catch (error) {
             console.error('Error posting data:', error);
+        }
+        try{
+            await axios.post('http://localhost:8080/api/users/send', param);
+
+        }catch (error) {
+            setErrorMsg(true)
+            setError("No such user")
+
         }
     };
 
@@ -212,15 +222,19 @@ function MailBox() {
                     </tr>
                     </tbody>
                 </table>
-                <button
-                    className="btn btn-primary btn-lg btn-block position-relative"
-                    style={{ marginLeft: '87%', marginRight: '20px', marginTop: '-9px', marginBottom: '10px' }}
-                    type="submit"
-                    onClick={sendMail}
-                    disabled={!to.trim() || !body.trim() || !subject.trim()}
+                <div className={"position-relative"}
+                     style={{ marginLeft: '87%', marginRight: '20px', marginTop: '-9px', marginBottom: '10px' }}
                 >
-                    Submit
-                </button>
+                    <button
+                        className="btn btn-primary btn-lg btn-block position-relative"
+                        // style={{ marginLeft: '87%', marginRight: '20px', marginTop: '-9px', marginBottom: '10px' }}
+                        type="submit"
+                        onClick={sendMail}
+                        disabled={!to.trim() || !body.trim() || !subject.trim()}
+                    >
+                        Submit
+                    </button>
+                    {errorMsg && <ErrorMsg message={error} />}</div>
             </form>
         </div>
     );

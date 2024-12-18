@@ -8,6 +8,7 @@ import {RiDeleteBin6Line} from "react-icons/ri";
 import {CiTrash} from "react-icons/ci";
 import {IoMdCheckmark} from "react-icons/io";
 import {SlReload} from "react-icons/sl";
+import ErrorMsg from "./ErrorMsg.jsx";
 
 const mail = {
     sender: PropTypes.string,
@@ -33,6 +34,8 @@ function ListBox() {
     const [isFiltered, setIsFiltered] = useState(false);
     const [sortStrategy,setSortStrategies] = useState("date")
     const [currentPage, setCurrentPage] = useState(1);
+    const [errorMsg, setErrorMsg] = useState(false)
+    const [error,setError] = useState('')
 
     const [mails, setMails] = useState([
         {
@@ -220,10 +223,16 @@ function ListBox() {
     async function rename() {
         console.log(params.folderName)
         console.log(folderName)
+        try{
+            await axios.post(`http://localhost:8080/api/users/renameFolder/${params.user}/${params.folderName}/${folderName}`)
 
-        await axios.post(`http://localhost:8080/api/users/renameFolder/${params.user}/${params.folderName}/${folderName}`)
+            navigate("/" + params.user + "/folder/" + folderName);
 
-        navigate("/" + params.user + "/folder/" + folderName);
+        }catch (e) {
+            setErrorMsg(true)
+            setError("folder already exists")
+        }
+
 
 
     }
@@ -238,23 +247,28 @@ function ListBox() {
     }
 
     function enableEdit() {
-        return (<div className={"list-title"}>
+        return (<>
+            <div className={"list-title"}>
 
-            <div style={{display: "flex"}}><input className={"folder-name"} type={"text"} value={folderName}
-                                                  onChange={(e) => setFolderName(e.target.value)}/>
-                <button className={"btn btn-lg"} style={{marginLeft: "20px"}} onClick={rename}><MdOutlineEdit
-                    style={{fontSize: "2.5rem"}}/></button>
+                <div style={{display: "flex"}}><input className={"folder-name"} type={"text"} value={folderName}
+                                                      onChange={(e) => setFolderName(e.target.value)}/>
+                    <button className={"btn btn-lg"} style={{marginLeft: "20px"}} onClick={rename}><MdOutlineEdit
+                        style={{fontSize: "2.5rem"}}/></button>
+                </div>
+
+                <button className={"btn btn-lg"} onClick={deleteFolder}><RiDeleteBin6Line style={{fontSize: "2.5rem"}}/>
+                </button>
+
+
             </div>
+            {errorMsg && <ErrorMsg message={error}/>}
 
-            <button className={"btn btn-lg"} onClick={deleteFolder}><RiDeleteBin6Line style={{fontSize: "2.5rem"}}/>
-            </button>
-
-        </div>)
+        </>)
     }
 
     function disableEdit() {
         return (<div className={"list-title"}>
-            <div style={{display: "flex", justifyContent:"space-between",width:"100%"} }>
+            <div style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
                 <h1 style={{fontSize: "3rem", fontWeight: "normal"}}>{folderName}</h1>
                 <div>
                     <button className={"btn"} onClick={() => window.location.reload()}><SlReload/></button>
@@ -268,7 +282,7 @@ function ListBox() {
         console.log(mails);
         console.log(e.target.value);
         setSortStrategies(e.target.value);
-            const getPageParams = {
+        const getPageParams = {
                 page: 1,
                 foldername: params.folderName,
                 strategy: e.target.value,

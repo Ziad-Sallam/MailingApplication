@@ -56,6 +56,7 @@ function MailView() {
                 const data = await axios.get("http://localhost:8080/api/users/getEmail", { params: param });
 
                 setMail(data.data);
+                console.log("mail =>")
                 console.log(mail)
             } catch (error) {
                 console.error('Error fetching emails:', error);
@@ -111,7 +112,7 @@ function MailView() {
                     </tr>
                     <tr>
                         <td>To: </td>
-                        <td>You
+                        <td>{params.folderName ==="Sent" ? mail.receivers :"You"}
                         </td>
                     </tr>
                     <tr>

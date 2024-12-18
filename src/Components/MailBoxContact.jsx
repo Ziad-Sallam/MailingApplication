@@ -80,7 +80,7 @@ function MailBoxContact() {
         setTo(v);
         const param = {
             sender: urlParams.user,
-            receivers: to.split(' '),
+            receivers: to.split(','),
             subject: subject,
             body: body,
             priority: priority,

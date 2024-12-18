@@ -1,0 +1,34 @@
+.NavBar {
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background: #000;
+    color: #fff;
+}
+.logo{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.nav{
+    display: flex;
+    flex-direction: row;
+    font-size: 1.5rem;
+    margin-right: 2rem;
+
+}
+.nav-seg{
+    display: flex;
+    flex-direction: row;
+    font-size: 1.5rem;
+    margin-right: 2rem;
+
+}
+.nav:hover{
+    color: #999999;
+    cursor: pointer;
+}
+

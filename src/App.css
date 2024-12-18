@@ -1,6 +1,7 @@
 textarea{
   height: 40vh;
 }
+
 .mail-view,.mail-box,.list-box,.Contact-box{
   margin: 1vmax;
   flex: 8;
@@ -32,7 +33,7 @@ textarea{
 
 .side-bar-inner{
   display: flex;
-
+  color: white;
 }
 
 .main-container{
@@ -44,7 +45,6 @@ textarea{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-
 }
 
 .folder-name{
@@ -52,4 +52,12 @@ textarea{
   background-color: transparent;
   border: none;
   width: 300px;
+}
+.list-control{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.list-control * *{
+  margin: 5px;
 }

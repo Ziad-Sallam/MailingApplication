@@ -15,7 +15,7 @@ function MailBox() {
     const [body, setBody] = useState('');
     const [subject, setSubject] = useState('');
     const [priority, setPriority] = useState(2);
-    const [attachment, setAttachment] = useState(null);
+    const [attachment, setAttachment] = useState([]);
 
     // Generate a unique ID if not provided in the URL params
     const id = useRef(urlParams.id || uuidv4()).current;
@@ -61,14 +61,25 @@ function MailBox() {
     };
 
     const createDraft = async () => {
-        const param = {
+        let param = {
             sender: urlParams.user,
             receivers: to.split(' '),
             subject: subject,
             body: body,
             priority: priority,
-            attachments : [attachment]
+            attachments : attachment
         };
+        if(attachment === null){
+            param = {
+                sender: urlParams.user,
+                receivers: to.split(' '),
+                subject: subject,
+                body: body,
+                priority: priority,
+            };
+
+        }
+
 
         try {
             await axios.post(`http://localhost:8080/api/users/createDraft?id=${id}`, param);
@@ -81,15 +92,24 @@ function MailBox() {
 
         e.preventDefault()
 
-        const param = {
+        let param = {
             sender: urlParams.user,
             receivers: to.split(' '),
             subject: subject,
             body: body,
             priority: priority,
-            attachments : [attachment]
-
+            attachments : attachment
         };
+        if(attachment === null){
+            param = {
+                sender: urlParams.user,
+                receivers: to.split(' '),
+                subject: subject,
+                body: body,
+                priority: priority,
+            };
+
+        }
             console.log("heeree")
         console.log(param)
         try {
@@ -101,31 +121,33 @@ function MailBox() {
     };
 
     function test(e){
+        console.log(e.target.files)
 
         console.log("hello");
 
         /////////////////////////////////////
+        for(let i=0; i<e.target.files.length; i++){
+            const file = e.target.files[i];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // File content as an ArrayBuffer
+                    const arrayBuffer = reader.result;
+                    const byteArray = new Uint8Array(arrayBuffer);
+                    const attach = {
+                        id : 12,
+                        fileName: e.target.files[i].name,
+                        fileType: e.target.files[i].type,
+                        fileContent :Array.from(byteArray)
+                    }
+                    setAttachment([...attachment,attach]);
+                    console.log(attachment);
+                };
+                // Read file as ArrayBuffer
+                reader.readAsArrayBuffer(file);
+            }
 
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        // File content as an ArrayBuffer
-                        const arrayBuffer = reader.result;
-                        const byteArray = new Uint8Array(arrayBuffer);
-                        const attach = {
-                            id : 12,
-                            fileName: e.target.files[0].name,
-                            fileType: e.target.files[0].type,
-                            fileContent :Array.from(byteArray)
-                        }
-                        setAttachment(attach);
-                        console.log(attachment);
-                    };
-                    // Read file as ArrayBuffer
-                    reader.readAsArrayBuffer(file);
-                }
-
+        }
 
         ////////////////////////////////////
     }
@@ -186,7 +208,7 @@ function MailBox() {
                     </tr>
                     <tr>
                         <td><label htmlFor="attachment">Attachment: </label></td>
-                        <td><input className="input input-file" type="file" onChange={test}/></td>
+                        <td><input className="input input-file" type="file" onChange={test} multiple={true}/></td>
                     </tr>
                     </tbody>
                 </table>

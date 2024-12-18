@@ -4,12 +4,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import AddContact from "./AddContact.jsx";
 import {FaPlus} from "react-icons/fa";
+import {FiSearch} from "react-icons/fi";
+import {SlReload} from "react-icons/sl";
 
 
 function ContactBox() {
     const navigate = useNavigate();
     const params = useParams();
     const [contactBox, setContactBox] = useState(false);
+
+    const [allContacts,setAllContacts] = useState([])
 
 
 
@@ -37,7 +41,7 @@ function ContactBox() {
             const url =
                 `http://localhost:8080/api/users/deleteContact/${param.name}/${param.email}`;
 
-            await axios.post(url);
+            await axios.delete(url);
         } catch (error) {
             console.error('Error deketing contact', error);
         }
@@ -51,6 +55,9 @@ function ContactBox() {
                 console.log(data.data);
                 const sorted = [...data.data].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
                 setContacts(sorted);
+                setAllContacts(sorted)
+                console.log("here")
+                console.log(sorted)
             } catch (error) {
                 console.error('Error fetching emails:', error);
             }
@@ -79,18 +86,37 @@ function ContactBox() {
 
     const [editFlag, setEditFlag] = useState( false);
 
+    function search(e) {
+        console.log("test")
+        console.log(allContacts)
+
+        const searched = [...allContacts].filter(contact => (contact.name.toLowerCase().includes(e.target.value.toLowerCase()) ));
+        //const x = [...searched].filter((c) => c.userEmails.filter( s => s.toLowerCase().includes(e.target.value.toLowerCase()) ));
+
+        setContacts(searched)
+        //setNumberOfPages(Array(res.data.length).fill(1))
+
+    }
+
     return (
         <div className="Contact-box">
+
             <div className={"list-title"}>
 
                 <div style={{display: "flex"}}>
                     <h1 style={{fontSize: "3rem", fontWeight: "normal"}}>Contacts</h1>
+
                 </div>
 
             </div>
             <hr/>
+            <div>
+                <label><FiSearch style={{fontSize: "1.5rem"}}/></label>
+                <input className={"search-input"} type={"text"} placeholder={"search..."} onChange={search}/>
+            </div>
 
-            <table className="table table-striped list-box-table table-hover contact-table">
+
+            <table className="table list-box-table table-hover contact-table">
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -99,11 +125,8 @@ function ContactBox() {
                 </thead>
                 <tbody>
                 {contact.map((c, index) => (
-
                     <tr key={index}>
-
                         <td>{c.name}</td>
-
                         <td>{c.userEmails}</td>
                         <td className={"table-btns"}>
                             <button
@@ -114,7 +137,6 @@ function ContactBox() {
                             </button>
                             <button className={"btn"} value={c.name} onClick={DeleteContact}>delete</button>
                             <button className={index + " btn "} value={c.name} onClick={editClicked}>Edit</button>
-
                         </td>
                         <td>{editFlag && editedContact(contactToEdit[0])}</td>
                     </tr>

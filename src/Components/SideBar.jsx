@@ -7,7 +7,6 @@ import axios from "axios";
 import {FaFolder, FaRegFolder} from "react-icons/fa";
 import {RiDraftFill, RiFolderAddLine} from "react-icons/ri";
 import AddFolder from "./AddFolder.jsx";
-import {TbLayoutNavbar} from "react-icons/tb";
 
 function SideBar() {
     const params = useParams();
@@ -32,20 +31,21 @@ function SideBar() {
     }, [params.user]);
 
     return (
-        <>
-
+        <div className={"main-container"}>
             <div className="side-bar">
 
                 <button className="btn" onClick={() => navigate("/" + params.user + "/send")}>
                     <MdEdit style={{fontSize: "1.7rem", marginRight: "10px"}}/>
                     Compose
                 </button>
-                <button className="btn" onClick={() => navigate("/" + params.user + "/folder/draft")}>
+                <button className="btn" onClick={() => {
+                    navigate("/" + params.user + "/folder/draft");
+                    window.location.reload();
+                }}>
                     <RiDraftFill style={{fontSize: "1.7rem", marginRight: "10px"}}/>
                     Draft
                 </button>
                 {folders.map((folder, index) =>
-
                     (
                         <>
                             <button className="btn" key={index} onClick={() => {
@@ -73,7 +73,7 @@ function SideBar() {
                 </button>
                 {addFolder && <AddFolder onClick={() => (setAddFolder(!addFolder))}/>}
             </div>
-        </>
+        </div>
 
     );
 }

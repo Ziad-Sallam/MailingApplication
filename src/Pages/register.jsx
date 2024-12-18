@@ -96,7 +96,7 @@ function LogIn() {
 
                 > Create Account
                 </button>
-                <a href={'/login'}>have an account?</a>
+                <a href={'/'}>have an account?</a>
                 <p className="mt-5 mb-3 text-muted">&copy; The programmers</p>
             </form>
         </>

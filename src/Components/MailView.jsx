@@ -79,6 +79,8 @@ function MailView() {
         console.log(folders);
     }, [params.mailID, params.user, params.folderName]);
 
+
+
     async function moveFolder(e) {
         try {
             const param = {
@@ -97,9 +99,6 @@ function MailView() {
             console.error('Error moving folder:', error);
         }
     }
-
-
-
 
     return (
         <div className="mail-view">
@@ -163,17 +162,17 @@ function MailView() {
                     const blob = new Blob([byteArray], { type: attachment.fileType });
 
                     return (
-                        <a
+                        <><a
                             key={index}
                             href={URL.createObjectURL(blob)}
                             download={attachment.fileName}
                         >
                             {attachment.fileName}
-                        </a>
+                        </a><br/></>
+
+
                     );
                 })}
-
-
             </div>
 
 

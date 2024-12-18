@@ -7,6 +7,7 @@ import axios from "axios";
 import {FaFolder, FaRegFolder} from "react-icons/fa";
 import {RiDraftFill, RiFolderAddLine} from "react-icons/ri";
 import AddFolder from "./AddFolder.jsx";
+import {CgProfile} from "react-icons/cg";
 
 function SideBar() {
     const params = useParams();
@@ -32,13 +33,21 @@ function SideBar() {
 
     return (
         <div className={"main-container"}>
-            <div className="side-bar">
 
-                <button className="btn" onClick={() => navigate("/" + params.user + "/send")}>
+            <div className="side-bar">
+                {/*<div className={"nav"}>*/}
+                {/*    <CgProfile style={{margin: "10px", fontSize: "3rem"}}/>*/}
+                {/*    <p>{params.user}</p>*/}
+                {/*</div>*/}
+
+                <hr/>
+                <button className={"btn btn-lg btn-outline-danger"}
+                        onClick={() => navigate("/" + params.user + "/send")}>
                     <MdEdit style={{fontSize: "1.7rem", marginRight: "10px"}}/>
                     Compose
                 </button>
-                <button className="btn" onClick={() => {
+                <hr/>
+                <button className="btn " onClick={() => {
                     navigate("/" + params.user + "/folder/draft");
                     window.location.reload();
                 }}>

@@ -122,6 +122,7 @@ function MailBox() {
         }
         try{
             await axios.post('http://localhost:8080/api/users/send', param);
+            window.location.reload()
 
         }catch (error) {
             setErrorMsg(true)

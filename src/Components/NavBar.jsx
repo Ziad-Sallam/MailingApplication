@@ -14,7 +14,7 @@ function NavBar(props) {
     return (
         <div className="NavBar">
             <div className={"logo"}>
-                <SiMaildotcom style={{fontSize: "4rem", color: "red"}}/>
+                <SiMaildotcom style={{fontSize: "3.3rem", color: "red"}}/>
                 <h1>My Mail</h1>
             </div>
 

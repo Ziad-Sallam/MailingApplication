@@ -17,11 +17,12 @@ function App() {
 
   return (
     <>
-        <NavBar user={params.user}/>
+      <NavBar user={params.user}/>
       <div className={"main-container"}>
         <SideBar/>
         <Outlet/>
-      </div>    </>
+      </div>
+    </>
   )
 }
 

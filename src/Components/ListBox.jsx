@@ -161,9 +161,6 @@ function ListBox() {
     }, [params.folderName, params.user]);
 
 
-
-
-
     async function moveFolder(e) {
         let ma =[];
         selectedRows.map((i) =>{
@@ -172,22 +169,39 @@ function ListBox() {
         })
         console.log(ma);
         console.log(ma)
-        try {
-            const param = {
-                mailId: ma,
-                fromFolder: params.folderName,
-                toFolder: selectedFolder
-            };
+        if(params.folderName==="draft"){
+            try {
+                ma.map(async(x) => {
+                    const r = await axios.post(`http://localhost:8080/api/users/deleteDraft/${x}/${params.user}`)
+                    console.log(r.status);
+                })
+            } catch (error) {
+                console.error('Error posting data:', error);
+            }
 
-            console.log(param)
-
-            const url =
-                `http://localhost:8080/api/users/moveFolder/${params.user}?mailId=${param.mailId}&fromFolder=${param.fromFolder}&toFolder=${e.target.id === "trash"?"Trash" :selectedFolder}`;
-
-            await axios.post(url);
-        } catch (error) {
-            console.error('Error moving folder:', error);
         }
+        else{
+            try {
+                const param = {
+                    mailId: ma,
+                    fromFolder: params.folderName,
+                    toFolder: selectedFolder
+                };
+
+                console.log(param)
+
+                const url =
+                    `http://localhost:8080/api/users/moveFolder/${params.user}?mailId=${param.mailId}&fromFolder=${param.fromFolder}&toFolder=${e.target.id === "trash"?"Trash" :selectedFolder}`;
+
+                await axios.post(url);
+                window.location.reload()
+            } catch (error) {
+                console.error('Error moving folder:', error);
+            }
+
+        }
+
+
     }
 
     async function getPage(e){
@@ -225,6 +239,7 @@ function ListBox() {
         console.log(folderName)
         try{
             await axios.post(`http://localhost:8080/api/users/renameFolder/${params.user}/${params.folderName}/${folderName}`)
+            setErrorMsg(false)
 
             navigate("/" + params.user + "/folder/" + folderName);
 
@@ -240,6 +255,7 @@ function ListBox() {
     async function deleteFolder() {
         console.log(params.folderName)
         console.log(folderName)
+
         await axios.post(`http://localhost:8080/api/users/deleteFolder/${params.folderName}/${params.user}`)
         navigate("/" + params.user + "/folder/Inbox");
         window.location.reload()
@@ -258,7 +274,6 @@ function ListBox() {
 
                 <button className={"btn btn-lg"} onClick={deleteFolder}><RiDeleteBin6Line style={{fontSize: "2.5rem"}}/>
                 </button>
-
 
             </div>
             {errorMsg && <ErrorMsg message={error}/>}
@@ -392,31 +407,33 @@ function ListBox() {
                     </tbody>
                 </table>
                 <div style={{marginTop: "20px"}}>
-                    <label>Move to: </label>
-                    <select style={{marginRight: "10px", marginLeft: "10px"}}
-                            value={selectedFolder}
-                            onChange={(e) => {
-                                setSelectedFolder(e.target.value)
-                                console.log(selectedFolder)
-                            }}
-                    >
-                        {folders.map((name, index) => (<option key={index} value={name}>{name}</option>))}
+                    {params.folderName !== "draft" &&<div>
+                        <label>Move to: </label>
+                        <select style={{marginRight: "10px", marginLeft: "10px"}}
+                                value={selectedFolder}
+                                onChange={(e) => {
+                                    setSelectedFolder(e.target.value)
+                                    console.log(selectedFolder)
+                                }}
+                        >
+                            {folders.map((name, index) => (<option key={index} value={name}>{name}</option>))}
 
-                    </select>
-                    <button className={"btn btn-outline-dark btn-sm"} onClick={moveFolder}>Move</button>
-                    <button className={"btn trash"}
-                            id={"trash"}
-                            style={{marginLeft: "89%", marginRight: "20px"}}
-                            onClick={
-                                moveFolder
-                            }
+                        </select>
+                        <button className={"btn btn-outline-dark btn-sm"} onClick={moveFolder}>Move</button>
+                    </div>}
 
-                    ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>
+
+                    {params.folderName !== "Trash" && <button className={"btn trash"}
+                                                              id={"trash"}
+                                                              style={{marginLeft: "89%", marginRight: "20px"}}
+                                                              onClick={moveFolder}
+
+                    ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>}
                 </div>
 
                 <nav aria-label="Page navigation example">
                     <ul className="pagination">
-                        <li className="page-item">
+                    <li className="page-item">
                             <a className="page-link" href="#" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>

@@ -69,7 +69,7 @@ function MailView() {
                 const response = await axios.get("http://localhost:8080/api/users/getFolders", { params: paramf });
                 let x = response.data.filter((item) => ((item !== "Trash") && (item !== "Sent") && (item !== params.folderName)))
                 setFolders(x);
-                
+                setSelectedFolder(x[0])
                 console.log(response.data)
             } catch (error) {
                 console.error('Error fetching folders:', error);
@@ -138,12 +138,12 @@ function MailView() {
 
                 </select>
                 <button className={"btn btn-outline-dark btn-sm"} onClick={moveFolder}>Move</button>
-                <button className={"btn trash"}
-                        id={"trash"}
-                        style={{marginLeft: "89%", marginRight: "20px"}}
-                        onClick={moveFolder}
+                {params.folderName !== "Trash" && <button className={"btn trash"}
+                         id={"trash"}
+                         style={{marginLeft: "89%", marginRight: "20px"}}
+                         onClick={moveFolder}
 
-                ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>
+                ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>}
             </div>
 
             <div>

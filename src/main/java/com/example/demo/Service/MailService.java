@@ -109,28 +109,28 @@ public class MailService {
         return null;
     }
 
-    public void setAttachment(Attachment attachment) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            createDirectoriesIfNeeded("data/attachments/" + attachment.getId() + ".json");
-            mapper.writeValue(new File("data/users/" + attachment.getId() + ".json"), attachment);
-            writeData();
-        } catch (IOException e) {
-            System.out.println("Error saving user data: " + e.getMessage());
-        }
-    }
+//    public void setAttachment(Attachment attachment) {
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            createDirectoriesIfNeeded("data/attachments/" + attachment.getId() + ".json");
+//            mapper.writeValue(new File("data/users/" + attachment.getId() + ".json"), attachment);
+//            writeData();
+//        } catch (IOException e) {
+//            System.out.println("Error saving user data: " + e.getMessage());
+//        }
+//    }
 
-    public void createAttachment(int mailId,String fileName,String fileType ,byte[] fileContent ) {
-        ObjectMapper mapper = new ObjectMapper();
-        Attachment attachment = new Attachment(fileName,fileType,fileContent);
-        try{
-            mapper.writeValue(new File("data/attachments/" + systemData.getNumberOfAttachments() + ".json"), attachment);
-            systemData.setNumberOfAttachments(systemData.getNumberOfAttachments() + 1);
-            writeData();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
+//    public void createAttachment(int mailId,String fileName,String fileType ,byte[] fileContent ) {
+//        ObjectMapper mapper = new ObjectMapper();
+//        Attachment attachment = new Attachment(fileName,fileType,fileContent);
+//        try{
+//            mapper.writeValue(new File("data/attachments/" + systemData.getNumberOfAttachments() + ".json"), attachment);
+//            systemData.setNumberOfAttachments(systemData.getNumberOfAttachments() + 1);
+//            writeData();
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 
 
 
@@ -188,9 +188,9 @@ public class MailService {
                 }
             }
             assert attachments != null;
-            for(Attachment a : attachments){
-                createAttachment(systemData.getNumberOfMails(),a.getFileName(), a.getFileType(), a.getFileContent());
-            }
+//            for(Attachment a : attachments){
+//                createAttachment(systemData.getNumberOfMails(),a.getFileName(), a.getFileType(), a.getFileContent());
+//            }
 
             // Update system data and persist changes
             systemData.setNumberOfMails(systemData.getNumberOfMails() + 1);
@@ -478,8 +478,6 @@ public class MailService {
 
         setUser(user);
     }
-
-
 
 
     public List<Mail> sortedAndFiteredpage(String useremail, int page, String foldername, String strategy, boolean isFiltered, String filterType, String filterValue) {

@@ -125,13 +125,15 @@ public class MailControllers {
         return ResponseEntity.ok(folderName);
     }
 
-    @PostMapping(value = "/moveFolder/{email}", params = {"mailId","fromFolder","toFolder"})
-    public ResponseEntity<String> moveFolder(@PathVariable("email") String email, @RequestParam("mailId") int id,@RequestParam("fromFolder") String fromFolder,@RequestParam("toFolder") String toFolder){
-        mailService.moveEmail(email,id,fromFolder,toFolder);
+    @PostMapping(value = "/moveFolder/{email}", params = {"mailId", "fromFolder", "toFolder"})
+    public ResponseEntity<String> moveFolder(@PathVariable("email") String email, @RequestParam("mailId") List<Integer> id, @RequestParam("fromFolder") String fromFolder, @RequestParam("toFolder") String toFolder) {
+        for (int i : id) {
+            mailService.moveEmail(email, i, fromFolder, toFolder);
+        }
         return ResponseEntity.ok(email);
     }
 
-    @PostMapping(value = "/deleteContact/{name}/{email}")
+    @DeleteMapping(value = "/deleteContact/{name}/{email}")
     public ResponseEntity<Boolean> deleteContact(@PathVariable("name") String name, @PathVariable("email") String email){
         Boolean b = mailService.deleteContact(name ,email);
         return ResponseEntity.ok(b);

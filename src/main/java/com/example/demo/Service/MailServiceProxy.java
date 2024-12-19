@@ -15,19 +15,26 @@ import static java.lang.Math.floor;
 
 public class MailServiceProxy implements IMailServiceProxy {
 
+    private static MailServiceProxy instance;
+    private static final Object lock = new Object();
     public static SystemData systemData = new SystemData();
-    MailService mailService = new MailService();
+    private MailService mailService = new MailService();
 
     @Autowired
-    public MailServiceProxy(MailService mailService) {
+    private MailServiceProxy(MailService mailService) {
         this.mailService = mailService;
     }
-
-    public MailServiceProxy() {
-
+    private MailServiceProxy() {}
+    public static MailServiceProxy getInstance() {
+        if (instance == null) {
+            synchronized (lock) {
+                if (instance == null) {
+                    instance = new MailServiceProxy();
+                }
+            }
+        }
+        return instance;
     }
-
-
 
     @Override
     public int createUser(String email, String password, String name) {
@@ -84,13 +91,6 @@ public class MailServiceProxy implements IMailServiceProxy {
 
 
         Folder toFolder = getFolder(user, toFolderName);
-//        if (toFolder == null) {
-//
-//            addNewFolder(user, toFolderName);
-//            toFolder = getFolder(user, toFolderName);
-//        }
-
-
         if (fromFolder!=null) {
             fromFolder.getFolderMailIds().remove((Integer) mailId);
             toFolder.addMail(mailId);
@@ -125,18 +125,6 @@ public class MailServiceProxy implements IMailServiceProxy {
 
     @Override
     public Mail getEmail(int id) {
-//        User user = getUser(email);
-//        List<Folder> userfolders = user.getUserFolders();
-//        for (Folder folder : userfolders) {
-//            for (Map.Entry<Integer, String> m : folder.getFolderMailIds().entrySet()) {
-//                if (id == m.getKey()) {
-//                    return mailService.getEmail(id);
-//                }
-//
-//            }
-//        }
-
-
         return mailService.getEmail(id);
 
     }
@@ -200,11 +188,6 @@ public class MailServiceProxy implements IMailServiceProxy {
 
     }
 
-//    @Override
-//    public List<Mail> getMailsFromFolder(Folder folder) {
-//
-//        return List.of();
-//    }
 
     @Override
     public List<Mail> getMailsFromFolder(String email, String folder) {
@@ -220,12 +203,6 @@ public class MailServiceProxy implements IMailServiceProxy {
             mails.add(mail);
         }
 
-//        folder.getFolderMailIds().forEach(mailID -> {
-//            Mail mail = getEmail((Integer) mailId);
-//            if (mail != null) {
-//                mails.add(mail);
-//            }
-//        });
         return mails;
     }
 
@@ -364,13 +341,6 @@ public class MailServiceProxy implements IMailServiceProxy {
         return f.delete();
     }
 
-//    @Override
-//    public void cleanOldMails() {
-//
-//    }
-//}
-
-
     public ArrayList<Contact> getContacts(String email) {
         User user = getUser(email);
         return user.getUsercontact();
@@ -431,7 +401,7 @@ public class MailServiceProxy implements IMailServiceProxy {
     public int numberofpages(String useremail,String foldername){
 
         List<Mail> folder=getMailsFromFolder(useremail,foldername);
-        return (int)floor(folder.size()/2);
+        return (int)floor(folder.size()/4);
 
     }
 
@@ -494,17 +464,13 @@ public class MailServiceProxy implements IMailServiceProxy {
             }
         }
 
-        int start = (page - 1) * 2;
-        int end = Math.min(start + 2, pagemails.size());
+        int start = (page - 1) * 4;
+        int end = Math.min(start + 4, pagemails.size());
 
         if(start>pagemails.size()||end>pagemails.size()){
-//            List<Mail> paginateds=new ArrayList<>();
-
             return Collections.emptyList();
-
         }
         List<Mail> paginatedMails = pagemails.subList(start, end);
-
         return paginatedMails;
     }
 

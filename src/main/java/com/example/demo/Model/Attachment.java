@@ -3,7 +3,7 @@ package com.example.demo.Model;
 public class Attachment {
     public int id;
     private String fileName;
-    private String fileType; // Example: "application/pdf" or "image/jpeg"
+    private String fileType;
     private byte[] fileContent;
 
     public Attachment(String fileName, String fileType, byte[] fileContent) {
@@ -19,8 +19,6 @@ public class Attachment {
     public void setId(int id) {
         this.id = id;
     }
-
-    // Getters and Setters
     public String getFileName() {
         return fileName;
     }

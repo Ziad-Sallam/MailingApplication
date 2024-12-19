@@ -17,8 +17,6 @@ import static com.example.demo.Service.MailServiceProxy.systemData;
 
 @Service
 public class MailService {
-    // static SystemData systemData = new SystemData();
-
     public MailService() {
         getData();
         cleanOldMails();
@@ -58,11 +56,6 @@ public class MailService {
 
         try {
             ArrayList<String> temp = systemData.getUsers();
-//            if (temp.contains(email)) {
-//                System.out.println("User already exists");
-//                return;
-//            }
-
             createDirectoriesIfNeeded("data/users/" + email + ".json");
             mapper.writeValue(new File("data/users/" + email + ".json"), user);
 
@@ -109,30 +102,6 @@ public class MailService {
         return null;
     }
 
-//    public void setAttachment(Attachment attachment) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            createDirectoriesIfNeeded("data/attachments/" + attachment.getId() + ".json");
-//            mapper.writeValue(new File("data/users/" + attachment.getId() + ".json"), attachment);
-//            writeData();
-//        } catch (IOException e) {
-//            System.out.println("Error saving user data: " + e.getMessage());
-//        }
-//    }
-
-//    public void createAttachment(int mailId,String fileName,String fileType ,byte[] fileContent ) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        Attachment attachment = new Attachment(fileName,fileType,fileContent);
-//        try{
-//            mapper.writeValue(new File("data/attachments/" + systemData.getNumberOfAttachments() + ".json"), attachment);
-//            systemData.setNumberOfAttachments(systemData.getNumberOfAttachments() + 1);
-//            writeData();
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
-//    }
-
-
 
     public Mail createEmail(String from, ArrayList<String> to, String subject, String body, int priority, List<Attachment> attachments) {
         MailBuilder builder = new MailBuilder();
@@ -144,7 +113,6 @@ public class MailService {
         builder.setPriority(priority);
         builder.setDateSent();
 
-        // Add attachments
         if (attachments != null && !attachments.isEmpty()) {
             builder.addAttachments(attachments);
         }
@@ -155,44 +123,28 @@ public class MailService {
         Queue<String> receiverQueue = new LinkedList<>(to);
 
         try {
-            // Create directories and save email as JSON
             createDirectoriesIfNeeded("data/mails/" + systemData.getNumberOfMails() + ".json");
             mapper.writeValue(new File("data/mails/" + systemData.getNumberOfMails() + ".json"), mail);
-
-            // Handle sender
             User sender = getUser(from);
             if (sender != null) {
                 Folder sentFolder = getFolder(sender, "Sent");
-//                if (sentFolder == null) {
-//                    addFolder(sender, "Sent");
-//                    sentFolder = getFolder(sender, "Sent"); // Ensure it's retrieved after creation
-//                }
+
                 sentFolder.addMail(systemData.getNumberOfMails());
                 sender.getSent().add(systemData.getNumberOfMails());
                 setUser(sender);
             }
 
-            // Handle receivers
             while (!receiverQueue.isEmpty()) {
                 String receiverEmail = receiverQueue.poll();
                 User receiver = getUser(receiverEmail);
                 if (receiver != null) {
                     Folder inbox = getFolder(receiver, "Inbox");
-//                    if (inbox == null) {
-//                        addNewFolder(receiver, "Inbox");
-//                        inbox = getFolder(receiver, "Inbox"); // Ensure it's retrieved after creation
-//                    }
                     inbox.addMail(systemData.getNumberOfMails());
                     receiver.addReceivedMail(systemData.getNumberOfMails());
                     setUser(receiver);
                 }
             }
             assert attachments != null;
-//            for(Attachment a : attachments){
-//                createAttachment(systemData.getNumberOfMails(),a.getFileName(), a.getFileType(), a.getFileContent());
-//            }
-
-            // Update system data and persist changes
             systemData.setNumberOfMails(systemData.getNumberOfMails() + 1);
             writeData();
         } catch (IOException e) {
@@ -200,37 +152,6 @@ public class MailService {
         }
         return mail;
     }
-
-//    public void moveToTrash(String email, int mailId, String fromFolderName) {
-//        User user = getUser(email);
-//        if (user == null) {
-//            System.out.println("User not found: " + email);
-//            return;
-//        }
-//
-//        Folder trash = getFolder(user, "Trash");
-//        if (trash == null) {
-//            addNewFolder(user, "Trash");
-//            trash = getFolder(user, "Trash");
-//        }
-//
-//        Folder fromFolder = getFolder(user, fromFolderName);
-//        if (fromFolder == null) {
-//            System.out.println("Folder not found: " + fromFolderName);
-//            return;
-//        }
-//
-//        if (fromFolder!=null) {
-//
-//            fromFolder.getFolderMailIds().remove((Integer) mailId);
-//            assert trash!=null;
-//            trash.addMail(mailId);
-//            setUser(user);
-//            System.out.println("Mail ID " + mailId + " moved from " + fromFolderName + " to Trash for user: " + email);
-//        } else {
-//            System.out.println("Mail ID " + mailId + " not found in " + fromFolderName + " for user: " + email);
-//        }
-//    }
 
     public Mail getEmail(int id) {
         ObjectMapper mapper = new ObjectMapper();
@@ -284,64 +205,19 @@ public class MailService {
             mails.add(mail);
         }
 
-//        folder.getFolderMailIds().forEach(mailID -> {
-//            Mail mail = getEmail((Integer) mailId);
-//            if (mail != null) {
-//                mails.add(mail);
-//            }
-//        });
         return mails;
     }
 
     public List<Mail> getMailsFromFolder(String email, String folder) {
         User user = getUser(email);
-//        if (user == null) {
-//            System.out.println("User not found: " + email);
-//            return null;
-//        }
         Folder f = getFolder(user, folder);
         return getMailsFromFolder(f);
 
     }
 
-//    public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue) {
-//        User user1 = getUser(user.getEmail());
-//        if (user1 != null) {
-//            Folder folder = getFolder(user1, folderName);
-//            if (folder != null) {
-//                List<Mail> folderMails = getMailsFromFolder(folder);
-//                IMailFilter filter = null;
-//                switch (filterType.toLowerCase()) {
-//                    case "sender":
-//                        filter = new FilterBySender(filterValue);
-//                        break;
-//                    case "subject":
-//                        filter = new FilterBySubject(filterValue);
-//                        break;
-//                    default:
-//                        System.out.println("Invalid filter type: " + filterType);
-//                        return List.of();
-//                }
-//                if (filter != null) {
-//                    List<Mail> filteredMails = filter.applyFilter(folderMails);
-//                    return filteredMails;
-//                }
-//            } else {
-//                System.out.println("Folder not found: " + folderName);
-//            }
-//        } else {
-//            System.out.println("User not found: " + user.getEmail());
-//        }
-//        return List.of();
-//
-//    }
 
     public ArrayList<String> getUserFolders(String email) {
         User user = getUser(email);
-//        if (user == null) {
-//            System.out.println("User not found: " + email);
-//            return null;
-//        }
         ArrayList<Folder> folders = user.getUserFolders();
         ArrayList<String> folderNames = new ArrayList<>();
         for (Folder f : folders) {
@@ -349,97 +225,6 @@ public class MailService {
         }
         return folderNames;
     }
-
-
-//    public Folder sortFolder(User user, String folderName, String strategy) {
-//        User user1 = getUser(user.getEmail());
-//        Folder folder = getFolder(user1, folderName);
-//
-//        SortStrategy sortStrategy;
-//        switch (strategy.toLowerCase()) {
-//            case "date":
-//                sortStrategy = new SortByDate();
-//                break;
-//            case "sender":
-//                sortStrategy = new SortBySender();
-//                break;
-//            case "subject":
-//                sortStrategy = new SortBySubject();
-//                break;
-//            case "importance":
-//                sortStrategy = new SortByPriority();
-//                break;
-//            case "body":
-//                sortStrategy = new SortByBody();
-//                break;
-//            default:
-//                throw new IllegalArgumentException("Invalid sorting strategy");
-//        }
-//
-//        sortStrategy.sort(folder);
-//        return folder;
-//    }
-
-//    public DraftedMail createDrafted(String id, Mail mail) {
-//        DraftedMail m = new DraftedMail();
-//        m.setTemp(id);
-//        m.setBody(mail.getBody());
-//        m.setSubject(mail.getSubject());
-//        m.setSender(mail.getSender());
-//        m.setPriority(mail.getPriority());
-//        m.setAttachments(mail.getAttachments());
-//        m.setDateSent(m.getDateSent());
-//        m.setReceivers(new ArrayList<>(mail.getReceivers()));
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            mapper.writeValue(new File("data/mails/" + id + ".json"), m);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        User user = getUser(mail.getSender());
-//        if (!user.getDraft().contains(id)) {
-//            user.addDraft(id);
-//            setUser(user);
-//        }
-//
-//
-//        return m;
-//
-//    }
-
-//    public DraftedMail getDrafted(String id) {
-//        ObjectMapper mapper = new ObjectMapper();
-//        DraftedMail m = new DraftedMail();
-//        try {
-//            System.out.println("here");
-//            m = mapper.readValue(new File("data/mails/" + id + ".json"), DraftedMail.class);
-//
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return m;
-//    }
-
-//    public List<DraftedMail> getUserDrafts(String email) {
-//        User user = getUser(email);
-//        List<DraftedMail> drafts = new ArrayList<>();
-//        for (String i : user.getDraft()) {
-//            drafts.add(getDrafted(i));
-//        }
-//        return drafts;
-//    }
-
-//    public boolean deleteDraft(String id, String email) {
-//        User user = getUser(email);
-//        File f = new File("data/mails/" + id + ".json");
-//
-//        ArrayList<String> n = user.getDraft();
-//        n.remove(id);
-//        user.setDraft(n);
-//        setUser(user);
-//        return f.delete();
-//    }
-
 
     public void cleanOldMails() {
         for (String usermail : systemData.getUsers()) {
@@ -537,16 +322,9 @@ public class MailService {
                 pagemails = filter.applyFilter(pagemails);
             }
         }
-
-
-
-
-        int start = (page - 1) * 2;
-        int end = Math.min(start + 2, pagemails.size());
-
+        int start = (page - 1) * 4;
+        int end = Math.min(start + 4, pagemails.size());
         if(start>pagemails.size()||end>pagemails.size()){
-//            List<Mail> paginateds=new ArrayList<>();
-
             return Collections.emptyList();
 
         }
@@ -585,7 +363,7 @@ List<Attachment> no =new ArrayList<>();
 //        mailService.createEmail("testUser@example.com", recipients, "Subject C", "Body C", 2,no);
 //        mailService.createEmail("testUser@example.com", recipients, "Subject D", "Body D", 5, no);
 //        mailService.createEmail("testUser@example.com", recipients, "Subject E", "Body E", 5, no);
-//        mailService.createEmail("testUser@example.com", recipients, "Subject F", "Body F", 1, no);
+          mailService.createEmail("testUser@example.com", recipients, "Subject F", "Body F", 1, no);
 
 
         // Step 3: Test Sorted and Filtered Pagination

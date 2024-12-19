@@ -6,8 +6,6 @@ public class SystemData {
     private int numberOfMails;
     private int numberOfAttachments;
     private ArrayList<String> users = new ArrayList<>();
-
-    // Getters and Setters
     public int getNumberOfMails() {
         return numberOfMails;
     }

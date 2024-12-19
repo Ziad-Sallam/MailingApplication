@@ -13,7 +13,7 @@ public class MailBuilder {
     private String dateSent;
     private int id;
     private int priority = 2; // Default priority
-    private List<Attachment> attachments = new ArrayList<>(); // Attachments list
+    private List<Attachment> attachments = new ArrayList<>();
 
     public MailBuilder setId(int id) {
         this.id = id;

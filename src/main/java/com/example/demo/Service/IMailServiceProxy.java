@@ -14,9 +14,7 @@ public interface IMailServiceProxy {
     public Mail getEmail(int id);
     public Folder getFolder(User user, String folderName);
     public int addFolder(String folderName, String userName);
-
     public void createDirectoriesIfNeeded(String filePath);
-    //    public List<Mail> getMailsFromFolder(Folder folder);
     public List<Mail> getMailsFromFolder(String email, String folder);
     public List<Mail> filterFolderMails(User user, String folderName, String filterType, String filterValue);
     public ArrayList<String> getUserFolders(String email);
@@ -25,7 +23,6 @@ public interface IMailServiceProxy {
     public DraftedMail getDrafted(String id);
     public List<DraftedMail> getUserDrafts(String email);
     public boolean deleteDraft(String id, String email);
-    //    public void cleanOldMails();
     public void writeData();
     public int addContacts(Contact contact, String email);
     public int renamefolder(String userName, String oldname, String newname);

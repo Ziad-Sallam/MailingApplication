@@ -11,8 +11,8 @@ public class Mail {
     private List<String> receivers;
     private String body;
     private String dateSent;
-    private int priority = 2; // Default priority
-    private List<Attachment> attachments; // List to hold attachments
+    private int priority = 2;
+    private List<Attachment> attachments;
 
     public Mail(String subject, String sender, ArrayList<String> receivers, String body, String dateSent, int id, int priority, List<Attachment> attachments) {
         this.subject = subject;
@@ -22,14 +22,13 @@ public class Mail {
         this.dateSent = dateSent;
         this.id = id;
         setPriority(priority);
-        this.attachments = new ArrayList<>(attachments); // Initialize attachments
+        this.attachments = new ArrayList<>(attachments);
     }
 
     public Mail() {
-        this.attachments = new ArrayList<>(); // Initialize the list in the default constructor
+        this.attachments = new ArrayList<>();
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }

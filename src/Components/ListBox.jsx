@@ -226,7 +226,7 @@ function ListBox() {
 
     function search(e) {
         console.log(allMails.current);
-        const searched = [...allMails.current].filter(mail => (mail.subject.toLowerCase().includes(e.target.value.toLowerCase()) || mail.sender.toLowerCase().includes(e.target.value.toLowerCase()) || mail.body.toLowerCase().includes(e.target.value.toLowerCase())));
+        const searched = [...allMails.current].filter(mail => (mail.subject.toLowerCase().includes(e.target.value.toLowerCase()) || mail.sender.toLowerCase().includes(e.target.value.toLowerCase()) || mail.body.toLowerCase().includes(e.target.value.toLowerCase()) || mail.dateSent.toLowerCase().includes(e.target.value.toLowerCase())));
         console.log(searched)
         console.log(allMails.current.slice((currentPage-1)*2,currentPage*2))
         //setNumberOfPages(Array(res.data.length).fill(1))
@@ -242,6 +242,7 @@ function ListBox() {
             setErrorMsg(false)
 
             navigate("/" + params.user + "/folder/" + folderName);
+            window.location.reload();
 
         }catch (e) {
             setErrorMsg(true)
@@ -431,7 +432,9 @@ function ListBox() {
                     ><CiTrash id={"trash"} className={"trash"} style={{fontSize: "1.7rem"}}/></button>}
                 </div>
 
+
                 <nav aria-label="Page navigation example">
+                {params.folderName !== "draft" && (
                     <ul className="pagination">
                     <li className="page-item">
                             <a className="page-link" href="#" aria-label="Previous">
@@ -445,7 +448,7 @@ function ListBox() {
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
-                    </ul>
+                    </ul>)}
                 </nav>
 
             </div>

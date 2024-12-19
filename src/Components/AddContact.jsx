@@ -40,7 +40,9 @@ function AddContact(props) {
             console.log(params);
             try {
                 await axios.post(`http://localhost:8080/api/users/editContact/${user}`, params);
+                window.location.reload();
                 props.onClick()
+                
             }catch (error){
                 setErrorMsg(true)
                 setError("contact already exists")
@@ -54,6 +56,7 @@ function AddContact(props) {
             console.log(params);
             try{
                 await axios.post(`http://localhost:8080/api/users/addContact/${user}`, params);
+                window.location.reload();
                 props.onClick()
             }catch (error){
                 setErrorMsg(true)

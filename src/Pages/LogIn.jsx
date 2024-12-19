@@ -46,7 +46,7 @@ function LogIn() {
             const user = response.data
 
             // Optionally navigate after successful login
-            navigate('/' + user.email + '/inbox');
+            navigate('/' + user.email + '/folder/inbox');
         } catch (error) {
             setErrorMsg(true)
             if(error.response.status === 404){

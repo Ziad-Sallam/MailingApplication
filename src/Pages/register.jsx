@@ -49,7 +49,7 @@ function LogIn() {
             try{
                 await axios.post('http://localhost:8080/api/users', new_);
                 console.log(email);
-                navigate('/'+ email + '/inbox');
+                navigate('/'+ email + '/folder/inbox');
             }
             catch (error){
                 console.log(error)

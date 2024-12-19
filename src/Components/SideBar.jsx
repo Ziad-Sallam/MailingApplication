@@ -47,7 +47,7 @@ function SideBar() {
                     Compose
                 </button>
                 <hr/>
-                <button className="btn " onClick={() => {
+                <button className="btn" onClick={() => {
                     navigate("/" + params.user + "/folder/draft");
                     window.location.reload();
                 }}>

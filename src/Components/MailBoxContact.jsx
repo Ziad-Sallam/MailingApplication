@@ -15,6 +15,9 @@ function MailBoxContact() {
     const [body, setBody] = useState('');
     const [subject, setSubject] = useState('');
     const [priority, setPriority] = useState(2);
+    const [attachment, setAttachment] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(false)
+    const [error,setError] = useState('')
 
     // Generate a unique ID if not provided in the URL params
     const id = useRef(urlParams.id || uuidv4()).current;
@@ -60,13 +63,24 @@ function MailBoxContact() {
     const createDraft = async () => {
         const v = urlParams.ContactEmail;
         setTo(v);
-        const param = {
+        let param = {
             sender: urlParams.user,
             receivers: to.split(' '),
             subject: subject,
             body: body,
             priority: priority,
         };
+
+        if(attachment === null){
+            param = {
+                sender: urlParams.user,
+                receivers: to.split(' '),
+                subject: subject,
+                body: body,
+                priority: priority,
+            };
+
+        }
 
         try {
             await axios.post(`http://localhost:8080/api/users/createDraft?id=${id}`, param);
@@ -75,25 +89,75 @@ function MailBoxContact() {
         }
     };
 
-    const sendMail = async () => {
+    const sendMail = async (e) => {
+
+        e.preventDefault()
+        
         const v = urlParams.ContactEmail;
         setTo(v);
-        const param = {
+        let param = {
             sender: urlParams.user,
             receivers: to.split(','),
             subject: subject,
             body: body,
             priority: priority,
-
+            attachments : attachment
         };
+
+        if(attachment === null){
+            param = {
+                sender: urlParams.user,
+                receivers: to.split(' '),
+                subject: subject,
+                body: body,
+                priority: priority,
+            };
+
+        }
 
         try {
             await axios.post(`http://localhost:8080/api/users/deleteDraft/${id}/${urlParams.user}`);
             await axios.post('http://localhost:8080/api/users/send', param);
         } catch (error) {
             console.error('Error posting data:', error);
+            setErrorMsg(true)
+            setError("No such user")
         }
+
+        window.location.reload();
     };
+
+    function test(e){
+        console.log(e.target.files)
+
+        console.log("hello");
+
+        /////////////////////////////////////
+        for(let i=0; i<e.target.files.length; i++){
+            const file = e.target.files[i];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // File content as an ArrayBuffer
+                    const arrayBuffer = reader.result;
+                    const byteArray = new Uint8Array(arrayBuffer);
+                    const attach = {
+                        id : 12,
+                        fileName: e.target.files[i].name,
+                        fileType: e.target.files[i].type,
+                        fileContent :Array.from(byteArray)
+                    }
+                    setAttachment([...attachment,attach]);
+                    console.log(attachment);
+                };
+                // Read file as ArrayBuffer
+                reader.readAsArrayBuffer(file);
+            }
+
+        }
+
+        ////////////////////////////////////
+    }
 
     return (
         <div className="d-flex flex-column mb-3 mail-box">
@@ -143,7 +207,7 @@ function MailBoxContact() {
                     </tr>
                     <tr>
                         <td><label htmlFor="attachment">Attachment: </label></td>
-                        <td><input className="input input-file" type="file" /></td>
+                        <td><input className="input input-file" type="file"  onChange={test} multiple={true} /></td>
                     </tr>
                     </tbody>
                 </table>
@@ -155,6 +219,7 @@ function MailBoxContact() {
                 >
                     Submit
                 </button>
+                {errorMsg && <ErrorMsg message={error} />}
             </form>
         </div>
     );

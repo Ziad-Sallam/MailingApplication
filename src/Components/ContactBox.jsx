@@ -42,6 +42,7 @@ function ContactBox() {
                 `http://localhost:8080/api/users/deleteContact/${param.name}/${param.email}`;
 
             await axios.delete(url);
+            window.location.reload();
         } catch (error) {
             console.error('Error deketing contact', error);
         }
